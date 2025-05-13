@@ -1,1 +1,27 @@
-console.log("Hello world");
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const authRouter = require("./src/routers/authRouter");
+const connectDB = require("./src/configs/connectDb");
+const errorMiddlewareHandle = require("./src/middlewares/errorMiddleware");
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+app.use("/auth", authRouter);
+
+const PORT = process.env.PORT;
+
+connectDB();
+
+app.use(errorMiddlewareHandle);
+
+app.listen(PORT, (err) => {
+  if (err) {
+    console.log(err);
+    return;
+  }
+
+  console.log(`Server starting at http://localhost:${PORT}`);
+});
