@@ -38,10 +38,38 @@ const register = asyncHandle(async (req, res) => {
   res.status(200).json({
     message: "Register new user is successfully",
     data: {
-      ...newUser,
+      email: newUser.email,
+      id: newUser.id,
       accesstoken: await getJsonWebToken(email, newUser.id),
     },
   });
 });
 
-module.exports = { register };
+const login = asyncHandle(async (req, res) => {
+  const { email, password } = req.body;
+
+  const existingUser = await UserModel.findOne({ email });
+
+  if (!existingUser) {
+    res.status(403);
+    throw new Error("User not found");
+  }
+
+  const isMathPassword = await bcrypt.compare(password, existingUser.password);
+
+  if (!isMathPassword) {
+    res.status(401);
+    throw new Error("Email or password not correct");
+  }
+
+  res.status(200).json({
+    message: "Login is sucessfully",
+    data: {
+      id: existingUser.id,
+      email: existingUser.email,
+      accesstoken: await getJsonWebToken(email, existingUser.id),
+    },
+  });
+});
+
+module.exports = { register, login };
