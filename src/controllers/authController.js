@@ -51,6 +51,7 @@ const register = asyncHandle(async (req, res) => {
     data: {
       email: newUser.email,
       id: newUser.id,
+      fullname: newUser.fullname,
       accesstoken: await getJsonWebToken(email, newUser.id),
     },
   });
@@ -67,6 +68,14 @@ const handleSendEmail = async (val) => {
 
 const verification = asyncHandle(async (req, res) => {
   const { email } = req.body;
+
+  //Check existing email account
+  const userExisting = await UserModel.findOne({ email });
+
+  if (userExisting) {
+    res.status(403);
+    throw new Error("Email account already registed");
+  }
 
   const verificationCode = Math.round(1000 + Math.random() * 9000);
 
@@ -131,6 +140,7 @@ const login = asyncHandle(async (req, res) => {
     data: {
       id: existingUser.id,
       email: existingUser.email,
+      fullname: existingUser.fullname,
       accesstoken: await getJsonWebToken(email, existingUser.id),
     },
   });
