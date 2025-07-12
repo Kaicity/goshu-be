@@ -1,4 +1,8 @@
-# EventHub Server
+# ERD SCHEMA
+
+https://drawsql.app/teams/itmix/diagrams/gushu-hr
+
+# Server
 
 This is the backend server for the EventHub project, built with Node.js, Express, and MongoDB. It provides authentication, user management, and email verification features.
 
