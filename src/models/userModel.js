@@ -1,10 +1,6 @@
 const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
-  fullname: {
-    type: String,
-    required: true,
-  },
   email: {
     type: String,
     required: true,
@@ -13,8 +9,12 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  photoUrl: {
-    type: String,
+  roleId: {
+    type: Number,
+    require: true,
+  },
+  employeeId: {
+    type: Number,
   },
   createdAt: {
     type: Date,

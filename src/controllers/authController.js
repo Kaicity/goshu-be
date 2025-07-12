@@ -26,7 +26,7 @@ const getJsonWebToken = async (email, id) => {
 };
 
 const register = asyncHandle(async (req, res) => {
-  const { fullname, email, password } = req.body;
+  const { email, password } = req.body;
 
   const existingUser = await UserModel.findOne({ email });
 
@@ -40,7 +40,6 @@ const register = asyncHandle(async (req, res) => {
 
   const newUser = new UserModel({
     email,
-    fullname,
     password: hashedPassword,
   });
 
@@ -51,7 +50,6 @@ const register = asyncHandle(async (req, res) => {
     data: {
       email: newUser.email,
       id: newUser.id,
-      fullname: newUser.fullname,
       accesstoken: await getJsonWebToken(email, newUser.id),
     },
   });
@@ -140,7 +138,6 @@ const login = asyncHandle(async (req, res) => {
     data: {
       id: existingUser.id,
       email: existingUser.email,
-      fullname: existingUser.fullname,
       accesstoken: await getJsonWebToken(email, existingUser.id),
     },
   });
