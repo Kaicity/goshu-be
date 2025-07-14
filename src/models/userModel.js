@@ -10,11 +10,12 @@ const UserSchema = new mongoose.Schema({
     required: true,
   },
   roleId: {
-    type: Number,
-    require: true,
+    type: String,
+    required: true,
   },
   employeeId: {
-    type: Number,
+    type: String,
+    required: true,
   },
   createdAt: {
     type: Date,

@@ -1,8 +1,10 @@
 const UserModel = require("../models/userModel");
+const EmployeeModel = require("../models/employeeModel");
 const bcrypt = require("bcrypt");
 const asyncHandle = require("express-async-handler");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
+const generateRandomCode = require("../utils/digitCodeRandom");
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -35,15 +37,26 @@ const register = asyncHandle(async (req, res) => {
     throw new Error("User has already exist!");
   }
 
+  // Create employee
+  const employeeCode = generateRandomCode();
+
+  const newEmployee = new EmployeeModel({
+    email,
+    employeeCode,
+  });
+
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
   const newUser = new UserModel({
     email,
     password: hashedPassword,
+    roleId: "ADMIN",
+    employeeId: newEmployee._id.toString(),
   });
 
   await newUser.save();
+  await newEmployee.save();
 
   res.status(200).json({
     message: "Register new user is successfully",
