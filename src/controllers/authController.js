@@ -149,7 +149,7 @@ const login = asyncHandle(async (req, res) => {
   res.status(200).json({
     message: "Login is sucessfully",
     data: {
-      id: existingUser.id,
+      employeeId: existingUser.employeeId,
       email: existingUser.email,
       accesstoken: await getJsonWebToken(email, existingUser.id),
     },
