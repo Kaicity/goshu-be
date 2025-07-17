@@ -1,6 +1,5 @@
 const Routers = require("express");
 const {
-  register,
   login,
   verification,
   forgotPassword,
@@ -10,7 +9,6 @@ const errorMiddlewareHandle = require("../middlewares/errorMiddleware");
 
 const authRouter = Routers();
 
-authRouter.post("/register", register);
 authRouter.post("/login", login);
 authRouter.post("/verification", verification);
 authRouter.post("/forgotPassword", forgotPassword);
