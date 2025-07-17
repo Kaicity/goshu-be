@@ -46,7 +46,7 @@ const verification = asyncHandle(async (req, res) => {
     html: `
       <div style="font-family: Arial, sans-serif; background: #f7f7f7; padding: 30px;">
         <div style="max-width: 400px; margin: auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 24px;">
-        <h2 style="color: #2d7ff9; text-align: center; margin-bottom: 16px;">Eventhub Verification</h2>
+        <h2 style="color: #2d7ff9; text-align: center; margin-bottom: 16px;">Goshu Verification</h2>
         <p style="font-size: 16px; color: #333; text-align: center;">
           Hello,<br>
           Please use the following verification code to complete your registration:
@@ -83,7 +83,7 @@ const forgotPassword = asyncHandle(async (req, res) => {
   const resetCode = Math.floor(100000 + Math.random() * 900000);
 
   const data = {
-    from: `EventHub Support <${process.env.USERNAME_EMAIL}>`,
+    from: `Goshu Support <${process.env.USERNAME_EMAIL}>`,
     to: email,
     subject: "Your Password Reset Code - Goshu System",
     text: `Your password reset code is: ${resetCode}`,
@@ -159,21 +159,24 @@ const getAllUsers = asyncHandle(async (req, res) => {
     UserModel.find().skip(skip).limit(limit).sort({ createdAt: -1 }),
   ]);
 
-  const data = [];
-  users.forEach((item) =>
-    data.push({
-      id: item.id,
-      email: item.email,
-      role: item.role,
-      employeeId: item.employeeId,
-      createdAt: item.createdAt,
-      updatedAt: item.updatedAt,
-    })
-  );
+  const data = users.map((item) => ({
+    id: item.id,
+    email: item.email,
+    role: item.role,
+    employeeId: item.employeeId,
+    createdAt: item.createdAt,
+    updatedAt: item.updatedAt,
+  }));
 
   res.status(200).json({
     message: "get users successfully",
     data,
+    pagination: {
+      totalItems: total,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      limit,
+    },
   });
 });
 
@@ -223,17 +226,12 @@ const deleteAccount = asyncHandle(async (req, res) => {
 
   const user = await UserModel.findById(id);
 
-  const employee = await EmployeeModel.findById(user.employeeId);
-
   if (!user) {
     res.status(404);
     throw new Error("User not found");
   }
 
-  if (!employee) {
-    res.status(404);
-    throw new Error("Employee not found");
-  }
+  const employee = await EmployeeModel.findById(user.employeeId);
 
   await UserModel.findByIdAndDelete(id);
   await EmployeeModel.findByIdAndDelete(employee._id.toString());
