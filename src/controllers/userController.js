@@ -4,6 +4,7 @@ const EmployeeModel = require("../models/employeeModel");
 const hashPassword = require("../utils/hashPassword");
 const generateRandomCode = require("../utils/digitCodeRandom");
 const nodemailer = require("nodemailer");
+const paginate = require("../utils/paginate");
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -138,8 +139,7 @@ const changePassword = asyncHandle(async (req, res) => {
     throw new Error("User not found!");
   }
 
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salt);
+  const hashedPassword = await hashPassword(password);
 
   await UserModel.findByIdAndUpdate(user._id, {
     password: hashedPassword,
@@ -152,7 +152,12 @@ const changePassword = asyncHandle(async (req, res) => {
 });
 
 const getAllUsers = asyncHandle(async (req, res) => {
-  const users = await UserModel.find();
+  const { page, limit, skip } = paginate(req);
+
+  const [total, users] = await Promise.all([
+    UserModel.countDocuments(),
+    UserModel.find().skip(skip).limit(limit).sort({ createdAt: -1 }),
+  ]);
 
   const data = [];
   users.forEach((item) =>
