@@ -2,9 +2,10 @@ const UserModel = require("../models/userModel");
 const EmployeeModel = require("../models/employeeModel");
 const bcrypt = require("bcrypt");
 const asyncHandle = require("express-async-handler");
-const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const generateRandomCode = require("../utils/digitCodeRandom");
+const getJsonWebToken = require("../utils/jwt");
+const hashPassword = require("../utils/hashPassword");
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -16,19 +17,8 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const getJsonWebToken = async (email, id) => {
-  const payload = {
-    email,
-    id,
-  };
-
-  const token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "1d" });
-
-  return token;
-};
-
 const register = asyncHandle(async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, role } = req.body;
 
   const existingUser = await UserModel.findOne({ email });
 
@@ -37,22 +27,23 @@ const register = asyncHandle(async (req, res) => {
     throw new Error("User has already exist!");
   }
 
-  // Create employee
+  // Create account users and employee
   const employeeCode = generateRandomCode();
 
+  // EMPLOYEE
   const newEmployee = new EmployeeModel({
     email,
     employeeCode,
   });
 
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salt);
+  // USER
+  const hashedPassword = await hashPassword(password);
 
   const newUser = new UserModel({
     email,
     password: hashedPassword,
-    roleId: "ADMIN",
     employeeId: newEmployee._id.toString(),
+    role,
   });
 
   await newUser.save();
@@ -62,8 +53,7 @@ const register = asyncHandle(async (req, res) => {
     message: "Register new user is successfully",
     data: {
       email: newUser.email,
-      id: newUser.id,
-      accesstoken: await getJsonWebToken(email, newUser.id),
+      employeeCode: newEmployee.employeeCode,
     },
   });
 });
@@ -146,12 +136,20 @@ const login = asyncHandle(async (req, res) => {
     throw new Error("Email or password not correct");
   }
 
+  // Tạo token mới (refesh)
+  const accessToken = await getJsonWebToken(email, existingUser.id);
+
+  await UserModel.findByIdAndUpdate(existingUser._id, {
+    currentToken: accessToken,
+  });
+
   res.status(200).json({
     message: "Login is sucessfully",
     data: {
       employeeId: existingUser.employeeId,
       email: existingUser.email,
-      accesstoken: await getJsonWebToken(email, existingUser.id),
+      role: existingUser.role,
+      accesstoken: accessToken,
     },
   });
 });
@@ -191,7 +189,7 @@ const forgotPassword = asyncHandle(async (req, res) => {
     `,
   };
 
-  const user = UserModel.findOne({ email });
+  const user = await UserModel.findOne({ email });
 
   if (user) {
     await handleSendEmail(data);

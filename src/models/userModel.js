@@ -9,13 +9,16 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  roleId: {
+  role: {
     type: String,
     required: true,
   },
   employeeId: {
     type: String,
     required: true,
+  },
+  currentToken: {
+    type: String,
   },
   createdAt: {
     type: Date,

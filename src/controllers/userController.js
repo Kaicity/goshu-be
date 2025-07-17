@@ -9,7 +9,6 @@ const getAllUsers = asyncHandle(async (req, res) => {
     data.push({
       id: item.id,
       email: item.email,
-      fullname: item.fullname,
     })
   );
 
