@@ -213,10 +213,37 @@ const createAccount = asyncHandle(async (req, res) => {
   });
 });
 
+const deleteAccount = asyncHandle(async (req, res) => {
+  const { id } = req.params;
+
+  const user = await UserModel.findById(id);
+
+  const employee = await EmployeeModel.findById(user.employeeId);
+
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  if (!employee) {
+    res.status(404);
+    throw new Error("Employee not found");
+  }
+
+  await UserModel.findByIdAndDelete(id);
+  await EmployeeModel.findByIdAndDelete(employee._id.toString());
+
+  res.status(200).json({
+    message: "User deleted successfully",
+    data: { userId: id },
+  });
+});
+
 module.exports = {
   getAllUsers,
   createAccount,
   verification,
   changePassword,
   forgotPassword,
+  deleteAccount,
 };
