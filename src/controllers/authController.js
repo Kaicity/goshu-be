@@ -9,7 +9,7 @@ const login = asyncHandle(async (req, res) => {
   const existingUser = await UserModel.findOne({ email });
 
   if (!existingUser) {
-    res.status(403);
+    res.status(404);
     throw new Error("User not found");
   }
 

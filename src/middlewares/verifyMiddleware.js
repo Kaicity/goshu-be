@@ -23,7 +23,7 @@ const verifyToken = asyncHandle(async (req, res, next) => {
       req.user = decoded;
       next();
     } catch (error) {
-      res.status(403);
+      res.status(401);
       throw new Error("Invalid or expired token");
     }
   }
