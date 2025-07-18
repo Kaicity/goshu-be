@@ -5,6 +5,7 @@ const hashPassword = require("../utils/hashPassword");
 const generateRandomCode = require("../utils/digitCodeRandom");
 const nodemailer = require("nodemailer");
 const paginate = require("../utils/paginate");
+const { isValidObjectId } = require("mongoose");
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -224,6 +225,12 @@ const createAccount = asyncHandle(async (req, res) => {
 const deleteAccount = asyncHandle(async (req, res) => {
   const { id } = req.params;
 
+  // Kiểm tra object id đúng với mongo trước khi truyền vào trước khi find id
+  if (!isValidObjectId(id)) {
+    res.status(400);
+    throw new Error("Invalid user ID format");
+  }
+
   const user = await UserModel.findById(id);
 
   if (!user) {
@@ -242,6 +249,82 @@ const deleteAccount = asyncHandle(async (req, res) => {
   });
 });
 
+const getUser = asyncHandle(async (req, res) => {
+  const { id } = req.params;
+
+  // Kiểm tra object id đúng với mongo trước khi truyền vào trước khi find id
+  if (!isValidObjectId(id)) {
+    res.status(400);
+    throw new Error("Invalid user ID format");
+  }
+
+  const user = await UserModel.findById(id);
+
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  res.status(200).json({
+    message: "Get user detail successfully",
+    data: {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      employeeId: user.employeeId,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    },
+  });
+});
+
+const updateUser = asyncHandle(async (req, res) => {
+  const { id } = req.params;
+
+  // Kiểm tra object id hợp lệ
+  if (!isValidObjectId(id)) {
+    res.status(400);
+    throw new Error("Invalid user ID format");
+  }
+
+  const user = await UserModel.findById(id);
+
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  // update data
+  const { email, role } = req.body;
+
+  if (email && email !== user.email) {
+    const existingEmailUser = await UserModel.findOne({ email });
+
+    if (existingEmailUser) {
+      res.status(409);
+      throw new Error("Email is already in use by another user");
+    }
+
+    user.email = email;
+  }
+
+  if (role !== undefined) user.role = role;
+  user.updatedAt = Date.now();
+
+  const updatedUser = await user.save();
+
+  res.status(200).json({
+    message: "User updated successfully",
+    data: {
+      id: updatedUser.id,
+      email: updatedUser.email,
+      role: updatedUser.role,
+      employeeId: updatedUser.employeeId,
+      updatedAt: Date.now(),
+    },
+  });
+});
+
 module.exports = {
   getAllUsers,
   createAccount,
@@ -249,4 +332,6 @@ module.exports = {
   changePassword,
   forgotPassword,
   deleteAccount,
+  getUser,
+  updateUser,
 };
