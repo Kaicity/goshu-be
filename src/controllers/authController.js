@@ -21,7 +21,11 @@ const login = asyncHandle(async (req, res) => {
   }
 
   // Tạo token mới (refesh)
-  const accessToken = await getJsonWebToken(email, existingUser.id);
+  const accessToken = await getJsonWebToken(
+    email,
+    existingUser.id,
+    existingUser.role
+  );
 
   await UserModel.findByIdAndUpdate(existingUser._id, {
     currentToken: accessToken,

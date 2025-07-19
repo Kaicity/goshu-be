@@ -11,11 +11,17 @@ const UserSchema = new mongoose.Schema({
   },
   role: {
     type: String,
+    enum: ["ADMIN", "HR", "EMPLOYEE"],
     required: true,
   },
   employeeId: {
     type: String,
     required: true,
+  },
+  status: {
+    type: String,
+    enum: ["ACTIVE", "INACTIVE", "SUSPENDED", "PENDING"],
+    require,
   },
   currentToken: {
     type: String,

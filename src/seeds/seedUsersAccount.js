@@ -3,6 +3,7 @@ const EmployeeModel = require("../models/employeeModel");
 const hashPassword = require("../utils/hashPassword");
 const generateRandomCode = require("../utils/digitCodeRandom");
 const UserRoles = require("../enums/userRoles");
+const UserStatus = require("../enums/userStatus");
 
 async function seedAdminAccount() {
   const adminEmail = process.env.ADMIN_EMAIL || "admin@example.com";
@@ -28,6 +29,7 @@ async function seedAdminAccount() {
       password: hashedPassword,
       employeeId: newEmployee._id.toString(),
       role: adminRole,
+      status: UserStatus.ACTIVE,
     });
 
     await newUser.save();
