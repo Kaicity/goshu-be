@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/auth', authRouter);
-app.use('/users', verifyToken, userRouter);
+app.use('/users', userRouter);
 
 const PORT = process.env.PORT;
 

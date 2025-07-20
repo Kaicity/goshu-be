@@ -11,15 +11,16 @@ const {
 } = require('../controllers/userController');
 const authorizeRole = require('../middlewares/authorizeRole');
 const UserRoles = require('../enums/userRoles');
+const verifyToken = require('../middlewares/verifyMiddleware');
 
 const userRouter = Routers();
-userRouter.get('/getAll', authorizeRole(UserRoles.ADMIN, UserRoles.HR), getAllUsers);
-userRouter.post('/createAccount', authorizeRole(UserRoles.ADMIN, UserRoles.HR), createAccount);
+userRouter.get('/getAll', verifyToken, authorizeRole(UserRoles.ADMIN, UserRoles.HR), getAllUsers);
+userRouter.post('/createAccount', verifyToken, authorizeRole(UserRoles.ADMIN, UserRoles.HR), createAccount);
 userRouter.post('/verification', verification);
 userRouter.post('/forgotPassword', forgotPassword);
 userRouter.post('/changePassword', changePassword);
-userRouter.delete('/deleteAccount/:id', authorizeRole(UserRoles.ADMIN), deleteAccount);
-userRouter.get('/getUser/:id', authorizeRole(UserRoles.ADMIN, UserRoles.HR), getUser);
-userRouter.put('/updateAccount/:id', authorizeRole(UserRoles.ADMIN, UserRoles.HR), updateUser);
+userRouter.delete('/deleteAccount/:id', verifyToken, authorizeRole(UserRoles.ADMIN), deleteAccount);
+userRouter.get('/getUser/:id', verifyToken, authorizeRole(UserRoles.ADMIN, UserRoles.HR), getUser);
+userRouter.put('/updateAccount/:id', verifyToken, authorizeRole(UserRoles.ADMIN, UserRoles.HR), updateUser);
 
 module.exports = userRouter;
