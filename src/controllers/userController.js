@@ -35,7 +35,7 @@ const verification = asyncHandle(async (req, res) => {
   const userExisting = await UserModel.findOne({ email });
 
   if (userExisting) {
-    res.status(403);
+    res.status(409);
     throw new Error('Email account already registed');
   }
 
@@ -70,7 +70,7 @@ const forgotPassword = asyncHandle(async (req, res) => {
       data: { resetCode },
     });
   } else {
-    res.status(401);
+    res.status(404);
     throw new Error('User not found!');
   }
 });
@@ -145,7 +145,7 @@ const createAccount = asyncHandle(async (req, res) => {
   const existingUser = await UserModel.findOne({ email });
 
   if (existingUser) {
-    res.status(401);
+    res.status(409);
     throw new Error('User has already exist!');
   }
 
