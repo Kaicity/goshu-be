@@ -8,6 +8,7 @@ const paginate = require('../utils/paginate');
 const { isValidObjectId } = require('mongoose');
 const UserStatus = require('../enums/userStatus');
 const { verificationData, forgotPasswordData } = require('../constants/mailerTheme');
+const { getIO } = require('../configs/socket');
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
@@ -171,6 +172,10 @@ const createAccount = asyncHandle(async (req, res) => {
 
   await newUser.save();
   await newEmployee.save();
+
+  // đẩy sự kiện cho client
+  const io = getIO();
+  io.emit('user:added', { email: newUser.email });
 
   res.status(200).json({
     message: 'Register new user is successfully',
