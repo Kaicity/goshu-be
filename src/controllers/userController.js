@@ -214,15 +214,9 @@ const deleteAccount = asyncHandle(async (req, res) => {
 });
 
 const getUser = asyncHandle(async (req, res) => {
-  const { id } = req.params;
+  const { email } = req.query;
 
-  // Kiểm tra object id đúng với mongo trước khi truyền vào trước khi find id
-  if (!isValidObjectId(id)) {
-    res.status(400);
-    throw new Error('Invalid user ID format');
-  }
-
-  const user = await UserModel.findById(id);
+  const user = await UserModel.findOne({ email });
 
   if (!user) {
     res.status(404);
@@ -232,11 +226,11 @@ const getUser = asyncHandle(async (req, res) => {
   res.status(200).json({
     message: 'Get user detail successfully',
     data: {
-      id: user.id,
+      id: user._id.toString(),
       email: user.email,
       role: user.role,
       employeeId: user.employeeId,
-      status: item.status,
+      status: user.status,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     },

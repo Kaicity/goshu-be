@@ -11,16 +11,10 @@ function setupSocket(server) {
   });
 
   io.on('connection', (socket) => {
-    console.log('🔌 New client connected:', socket.id);
+    console.log('New client connected:', socket.id);
 
     socket.on('disconnect', () => {
       console.log('Client disconnected:', socket.id);
-    });
-
-    // Ví dụ: Nhận sự kiện từ client
-    socket.on('newEmployee', (data) => {
-      console.log('📦 New employee received from client:', data);
-      socket.broadcast.emit('employeeAdded', data);
     });
   });
 }
