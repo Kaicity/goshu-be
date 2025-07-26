@@ -5,7 +5,7 @@ let io;
 function setupSocket(server) {
   io = new Server(server, {
     cors: {
-      origin: process.env.CLIENT_PORT || '*',
+      origin: '*',
       methods: ['GET', 'POST'],
     },
   });
