@@ -18,10 +18,16 @@ setupSocket(server);
 app.use(cors());
 app.use(express.json());
 
+// Routes
 app.use('/auth', authRouter);
 app.use('/users', userRouter);
 
-const PORT = process.env.PORT;
+// Route mặc định để test khi bấm link Render
+app.get('/', (req, res) => {
+  res.send('✅ Goshu Backend is running');
+});
+
+const PORT = process.env.PORT || 8080;
 
 connectDB();
 
