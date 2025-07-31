@@ -254,7 +254,7 @@ const updateUser = asyncHandle(async (req, res) => {
   }
 
   // update data
-  const { email, role } = req.body;
+  const { email, role, status } = req.body;
 
   if (email && email !== user.email) {
     const existingEmailUser = await UserModel.findOne({ email });
@@ -268,6 +268,7 @@ const updateUser = asyncHandle(async (req, res) => {
   }
 
   if (role !== undefined) user.role = role;
+  if (status !== undefined) user.status = status;
   user.updatedAt = Date.now();
 
   const updatedUser = await user.save();
