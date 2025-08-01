@@ -20,7 +20,7 @@ userRouter.post('/verification', verification);
 userRouter.post('/forgotPassword', forgotPassword);
 userRouter.post('/changePassword', changePassword);
 userRouter.delete('/deleteAccount/:id', verifyToken, authorizeRole(UserRoles.ADMIN), deleteAccount);
-userRouter.get('/getUser', verifyToken, authorizeRole(UserRoles.ADMIN, UserRoles.HR), getUser);
+userRouter.get('/getUser', verifyToken, getUser);
 userRouter.put('/updateAccount/:id', verifyToken, authorizeRole(UserRoles.ADMIN, UserRoles.HR), updateUser);
 
 module.exports = userRouter;
