@@ -167,7 +167,7 @@ const createAccount = asyncHandle(async (req, res) => {
     password: hashedPassword,
     employeeId: newEmployee._id.toString(),
     role,
-    status: status ? status : UserStatus.SUSPENDED,
+    status: status ? status : UserStatus.PENDING,
   });
 
   await newUser.save();
