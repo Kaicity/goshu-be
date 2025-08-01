@@ -167,7 +167,7 @@ const createAccount = asyncHandle(async (req, res) => {
     password: hashedPassword,
     employeeId: newEmployee._id.toString(),
     role,
-    status: status ? status : UserStatus.ACTIVE,
+    status: status ? status : UserStatus.SUSPENDED,
   });
 
   await newUser.save();
@@ -254,7 +254,7 @@ const updateUser = asyncHandle(async (req, res) => {
   }
 
   // update data
-  const { email, role, status } = req.body;
+  const { email, role, status, password } = req.body;
 
   if (email && email !== user.email) {
     const existingEmailUser = await UserModel.findOne({ email });
@@ -267,8 +267,10 @@ const updateUser = asyncHandle(async (req, res) => {
     user.email = email;
   }
 
-  if (role !== undefined) user.role = role;
-  if (status !== undefined) user.status = status;
+  if (role) user.role = role;
+  if (status) user.status = status;
+  if (password) user.password = await hashPassword(password);
+
   user.updatedAt = Date.now();
 
   const updatedUser = await user.save();
