@@ -10,7 +10,7 @@ const login = asyncHandle(async (req, res) => {
 
   if (!existingUser) {
     res.status(404);
-    throw new Error('Tài khoản không tồn tại');
+    throw new Error('Tài khoản người dùng không tồn tại');
   }
 
   const isMathPassword = await bcrypt.compare(password, existingUser.password);

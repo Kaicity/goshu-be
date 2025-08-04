@@ -9,6 +9,7 @@ const { isValidObjectId } = require('mongoose');
 const UserStatus = require('../enums/userStatus');
 const { verificationData, forgotPasswordData } = require('../constants/mailerTheme');
 const { getIO } = require('../configs/socket');
+const UserRoles = require('../enums/userRoles');
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
@@ -37,7 +38,7 @@ const verification = asyncHandle(async (req, res) => {
 
   if (userExisting) {
     res.status(409);
-    throw new Error('Email account already registed');
+    throw new Error('Tài khoản Email đã được đăng ký');
   }
 
   const verificationCode = Math.round(1000 + Math.random() * 9000);
@@ -47,7 +48,7 @@ const verification = asyncHandle(async (req, res) => {
   await handleSendEmail(data);
 
   res.status(200).json({
-    message: 'Send verification code successfully!',
+    message: 'Gửi mã xác nhận thành công',
     data: {
       code: verificationCode,
     },
@@ -67,12 +68,12 @@ const forgotPassword = asyncHandle(async (req, res) => {
     await handleSendEmail(data);
 
     res.status(200).json({
-      message: 'A reset code has been sent to your email address.',
+      message: 'Điền mã số đã được gửi đến Email tài khoản này',
       data: { resetCode },
     });
   } else {
     res.status(404);
-    throw new Error('User not found!');
+    throw new Error('Không tìm thấy tài khoản người dùng này');
   }
 });
 
@@ -85,7 +86,7 @@ const changePassword = asyncHandle(async (req, res) => {
 
   if (!user) {
     res.status(403);
-    throw new Error('User not found!');
+    throw new Error('Không tìm thấy tài khoản người dùng này');
   }
 
   const hashedPassword = await hashPassword(password);
@@ -95,7 +96,7 @@ const changePassword = asyncHandle(async (req, res) => {
   });
 
   res.status(200).json({
-    message: 'Change password sucessfully',
+    message: 'Đổi mật khẩu người dùng thành công',
     data: [],
   });
 });
@@ -147,7 +148,7 @@ const createAccount = asyncHandle(async (req, res) => {
 
   if (existingUser) {
     res.status(409);
-    throw new Error('User has already exist!');
+    throw new Error('Tên tài khoản Email người dùng đã tồn tại');
   }
 
   // Create account users and employee
@@ -178,7 +179,7 @@ const createAccount = asyncHandle(async (req, res) => {
   io.emit('user:added', { email: newUser.email });
 
   res.status(200).json({
-    message: 'Register new user is successfully',
+    message: 'Tạo tài khoản người dùng thành công',
     data: {
       email: newUser.email,
       employeeCode: newEmployee.employeeCode,
@@ -199,7 +200,16 @@ const deleteAccount = asyncHandle(async (req, res) => {
 
   if (!user) {
     res.status(404);
-    throw new Error('User not found');
+    throw new Error('Không tìm thấy tài khoản này');
+  }
+
+  if (user) {
+    const userRole = user.role;
+
+    if (userRole === UserRoles.ADMIN) {
+      res.status(403);
+      throw new Error('Không thể xóa với tài khoản là Admin');
+    }
   }
 
   const employee = await EmployeeModel.findById(user.employeeId);
@@ -208,7 +218,7 @@ const deleteAccount = asyncHandle(async (req, res) => {
   await EmployeeModel.findByIdAndDelete(employee._id.toString());
 
   res.status(200).json({
-    message: 'User deleted successfully',
+    message: 'Xóa tài khoản người dùng thành công',
     data: { userId: id },
   });
 });
@@ -220,7 +230,7 @@ const getUser = asyncHandle(async (req, res) => {
 
   if (!user) {
     res.status(404);
-    throw new Error('User not found');
+    throw new Error('Không tìm thấy tài khoản này');
   }
 
   res.status(200).json({
@@ -250,7 +260,7 @@ const updateUser = asyncHandle(async (req, res) => {
 
   if (!user) {
     res.status(404);
-    throw new Error('User not found');
+    throw new Error('Không tìm thấy tài khoản này');
   }
 
   // update data
@@ -261,7 +271,7 @@ const updateUser = asyncHandle(async (req, res) => {
 
     if (existingEmailUser) {
       res.status(409);
-      throw new Error('Email is already in use by another user');
+      throw new Error('Tài khoản Email người dùng đã tồn tại');
     }
 
     user.email = email;
@@ -276,7 +286,7 @@ const updateUser = asyncHandle(async (req, res) => {
   const updatedUser = await user.save();
 
   res.status(200).json({
-    message: 'User updated successfully',
+    message: 'Cập nhật tài khoản thành công',
     data: {
       id: updatedUser.id,
       email: updatedUser.email,
