@@ -21,7 +21,7 @@ const login = asyncHandle(async (req, res) => {
     throw new Error('Tài khoản hoặc mật khẩu không đúng');
   }
 
-  if (existingUser && existingUser.role === UserStatus.INACTIVE) {
+  if (existingUser && existingUser.status === UserStatus.INACTIVE) {
     res.status(403);
     throw new Error('Rất tiếc tài khoản người dùng đã tạm dừng');
   }
