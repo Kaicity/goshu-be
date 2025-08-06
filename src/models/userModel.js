@@ -1,4 +1,6 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
+const userRole = require('../enums/userRoles');
+const UserStatus = require('../enums/userStatus');
 
 const UserSchema = new mongoose.Schema({
   email: {
@@ -11,7 +13,7 @@ const UserSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["ADMIN", "HR", "EMPLOYEE"],
+    enum: [userRole.ADMIN, userRole.HR, userRole.EMPLOYEE],
     required: true,
   },
   employeeId: {
@@ -20,7 +22,7 @@ const UserSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["ACTIVE", "INACTIVE", "SUSPENDED", "PENDING"],
+    enum: [UserStatus.ACTIVE, UserStatus.INACTIVE, UserStatus.SUSPENDED, UserStatus.PENDING],
     require,
   },
   currentToken: {
@@ -36,6 +38,6 @@ const UserSchema = new mongoose.Schema({
   },
 });
 
-const UserModel = mongoose.model("users", UserSchema);
+const UserModel = mongoose.model('users', UserSchema);
 
 module.exports = UserModel;

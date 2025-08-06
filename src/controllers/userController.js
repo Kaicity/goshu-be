@@ -24,7 +24,7 @@ const transporter = nodemailer.createTransport({
 const handleSendEmail = async (val) => {
   try {
     await transporter.sendMail(val);
-    return 'OK';
+    return 'SUCCESS';
   } catch (error) {
     return error;
   }
@@ -115,7 +115,7 @@ const getAllUsers = asyncHandle(async (req, res) => {
   if (status) query.status = status;
 
   const [total, users] = await Promise.all([
-    UserModel.countDocuments(),
+    UserModel.countDocuments(query),
     UserModel.find(query).skip(skip).limit(limit).sort({ createdAt: -1 }),
   ]);
 
@@ -130,7 +130,7 @@ const getAllUsers = asyncHandle(async (req, res) => {
   }));
 
   res.status(200).json({
-    message: 'get users successfully',
+    message: 'get list users successfully',
     data,
     pagination: {
       totalItems: total,

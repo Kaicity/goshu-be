@@ -8,6 +8,7 @@ const userRouter = require('./src/routers/userRouter');
 const seedAdminAccount = require('./src/seeds/seedUsersAccount');
 const http = require('http');
 const { setupSocket } = require('./src/configs/socket');
+const employeeRouter = require('./src/routers/employeeRouter');
 
 const app = express();
 const server = http.createServer(app);
@@ -21,6 +22,7 @@ app.use(express.json());
 // Routes
 app.use('/auth', authRouter);
 app.use('/users', userRouter);
+app.use('/employees', employeeRouter);
 
 // Route mặc định để test khi bấm link Render
 app.get('/', (req, res) => {

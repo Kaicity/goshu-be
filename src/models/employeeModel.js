@@ -1,7 +1,11 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
+const UserStatus = require('../enums/userStatus');
 
 const EmployeeSchema = new mongoose.Schema({
   fullname: {
+    type: String,
+  },
+  username: {
     type: String,
   },
   employeeCode: {
@@ -9,6 +13,15 @@ const EmployeeSchema = new mongoose.Schema({
     required: true,
   },
   email: {
+    type: String,
+  },
+  githubId: {
+    type: String,
+  },
+  slackId: {
+    type: String,
+  },
+  microsoftTeamId: {
     type: String,
   },
   address: {
@@ -23,17 +36,30 @@ const EmployeeSchema = new mongoose.Schema({
   gender: {
     type: String,
   },
-  position: {
+  designation: {
+    type: String,
+  },
+  type: {
     type: String,
   },
   joinDate: {
     type: Date,
   },
+  workingDate: {
+    type: Date,
+  },
   avatarUrl: {
     type: String,
   },
+  document: {
+    type: [String],
+  },
   departmentId: {
     type: String,
+  },
+  status: {
+    type: String,
+    enum: [UserStatus.ACTIVE, UserStatus.INACTIVE, UserStatus.SUSPENDED, UserStatus.PENDING],
   },
   createdAt: {
     type: Date,
@@ -45,6 +71,6 @@ const EmployeeSchema = new mongoose.Schema({
   },
 });
 
-const EmployeeModel = mongoose.model("employees", EmployeeSchema);
+const EmployeeModel = mongoose.model('employees', EmployeeSchema);
 
 module.exports = EmployeeModel;
