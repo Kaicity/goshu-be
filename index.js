@@ -9,6 +9,12 @@ const seedAdminAccount = require('./src/seeds/seedUsersAccount');
 const http = require('http');
 const { setupSocket } = require('./src/configs/socket');
 const employeeRouter = require('./src/routers/employeeRouter');
+const departmentRouter = require('./src/routers/departmentRouter');
+const UserRoles = require('./src/enums/userRoles');
+const verifyToken = require('./src/middlewares/verifyMiddleware');
+const authorizeRole = require('./src/middlewares/authorizeRole');
+const { createDepartment } = require('./src/controllers/departmentController');
+const seedDepartment = require('./src/seeds/seedDepartment');
 
 const app = express();
 const server = http.createServer(app);
@@ -23,6 +29,7 @@ app.use(express.json());
 app.use('/auth', authRouter);
 app.use('/users', userRouter);
 app.use('/employees', employeeRouter);
+app.use('/departments', verifyToken, authorizeRole(UserRoles.ADMIN), departmentRouter);
 
 // Route mặc định để test khi bấm link Render
 app.get('/', (req, res) => {
@@ -33,8 +40,9 @@ const PORT = process.env.PORT || 8080;
 
 connectDB();
 
-// Create seed account system
+// SEED DATA
 seedAdminAccount();
+// seedDepartment();
 
 app.use(errorMiddlewareHandle);
 
