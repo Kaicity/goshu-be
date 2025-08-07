@@ -1,7 +1,7 @@
 const DepartmentModel = require('../models/departmentModel');
 
-const createDepartmentService = async (data) => {
-  const { name, description } = data;
+const createDepartmentService = async (createData) => {
+  const { name, description } = createData;
 
   const newDepartment = new DepartmentModel({
     name,
@@ -10,7 +10,12 @@ const createDepartmentService = async (data) => {
 
   await newDepartment.save();
 
-  return newDepartment;
+  const data = {
+    name: newDepartment.name,
+    description: newDepartment.description,
+  };
+
+  return { data };
 };
 
 const getAllDepartmentsService = async ({ page, limit, skip, search }) => {

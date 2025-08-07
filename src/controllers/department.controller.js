@@ -3,14 +3,11 @@ const paginate = require('../utils/paginate');
 const { createDepartmentService, getAllDepartmentsService } = require('../services/department.service');
 
 const createDepartment = asyncHandle(async (req, res) => {
-  const newDepartment = await createDepartmentService(req.body);
+  const result = await createDepartmentService(req.body);
 
   res.status(200).json({
     message: 'Tạo phòng ban thành công',
-    data: {
-      name: newDepartment.name,
-      description: newDepartment.description,
-    },
+    ...result,
   });
 });
 
