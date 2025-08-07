@@ -7,7 +7,12 @@ const { getAllEmployees, updateEmployee, getEmployee } = require('../controllers
 const employeeRouter = Router();
 
 employeeRouter.get('/getAll', verifyToken, authorizeRole(UserRoles.ADMIN, UserRoles.HR), getAllEmployees);
-employeeRouter.put('/updateEmployee/:id', verifyToken, authorizeRole(UserRoles.ADMIN, UserRoles.HR), updateEmployee);
+employeeRouter.put(
+  '/updateEmployee/:id',
+  verifyToken,
+  authorizeRole(UserRoles.ADMIN, UserRoles.HR, UserRoles.EMPLOYEE),
+  updateEmployee,
+);
 employeeRouter.get(
   '/getEmployee/:id',
   verifyToken,
