@@ -13,7 +13,7 @@ const getAllEmployeesService = async ({ page, limit, skip, search }, { departmen
     ];
   }
 
-  if (department) query.department = department;
+  if (department) query.departmentId = department;
   if (type) query.type = type;
 
   const [total, employees] = await Promise.all([
@@ -115,4 +115,44 @@ const updateEmployeeService = async (id, updateData) => {
   return { data };
 };
 
-module.exports = { getAllEmployeesService, updateEmployeeService };
+const getEmployeeService = async (id) => {
+  if (!isValidObjectId(id)) {
+    const err = new Error('Invalid employee ID format');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const employee = await EmployeeModel.findById(id);
+
+  if (!employee) {
+    const err = new Error('Không tìm thấy nhân viên này');
+    err.statusCode = 404;
+    throw err;
+  }
+
+  const data = {
+    employeeCode: employee.employeeCode,
+    fullname: employee.fullname,
+    username: employee.username,
+    githubId: employee.githubId,
+    slackId: employee.slackId,
+    microsoftTeamId: employee.microsoftTeamId,
+    address: employee.address,
+    phone: employee.phone,
+    birthday: employee.birthday,
+    gender: employee.gender,
+    designation: employee.designation,
+    joinDate: employee.joinDate,
+    workingDate: employee.workingDate,
+    avatarUrl: employee.avatarUrl,
+    type: employee.type,
+    document: employee.document,
+    departmentId: employee.departmentId,
+    status: employee.status,
+    updatedAt: employee.updatedAt,
+  };
+
+  return { data };
+};
+
+module.exports = { getAllEmployeesService, updateEmployeeService, getEmployeeService };
