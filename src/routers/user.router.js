@@ -8,7 +8,7 @@ const {
   deleteAccount,
   getUser,
   updateUser,
-} = require('../controllers/userController');
+} = require('../controllers/user.controller');
 const authorizeRole = require('../middlewares/authorizeRole');
 const UserRoles = require('../enums/userRoles');
 const verifyToken = require('../middlewares/verifyMiddleware');

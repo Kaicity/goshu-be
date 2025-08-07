@@ -1,10 +1,10 @@
 const errorMiddlewareHandle = (err, _req, res, next) => {
-  const statusCode = res.statusCode ? res.statusCode : 500;
+  const statusCode = err.statusCode || res.statusCode || 500;
 
   res.status(statusCode).json({
-    message: err.message,
+    message: err.message || 'Server Error',
     statusCode,
-    stack: err.stack,
+    stack: process.env.NODE_ENV === 'production' ? undefined : err.stack,
   });
 };
 

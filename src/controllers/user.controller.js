@@ -73,7 +73,7 @@ const forgotPassword = asyncHandle(async (req, res) => {
     });
   } else {
     res.status(404);
-    throw new Error('Không tìm thấy tài khoản người dùng này');
+    throw new Error('Không tìm thấy tài khoản trong hệ thống');
   }
 });
 
@@ -84,7 +84,7 @@ const changePassword = asyncHandle(async (req, res) => {
 
   if (!user) {
     res.status(403);
-    throw new Error('Không tìm thấy tài khoản người dùng này');
+    throw new Error('Không tìm thấy tài khoản trong hệ thống');
   }
 
   const hashedPassword = await hashPassword(password);
@@ -198,7 +198,7 @@ const deleteAccount = asyncHandle(async (req, res) => {
 
   if (!user) {
     res.status(404);
-    throw new Error('Không tìm thấy tài khoản này');
+    throw new Error('Không tìm thấy tài khoản trong hệ thống');
   }
 
   if (user) {
@@ -228,7 +228,7 @@ const getUser = asyncHandle(async (req, res) => {
 
   if (!user) {
     res.status(404);
-    throw new Error('Không tìm thấy tài khoản này');
+    throw new Error('Không tìm thấy tài khoản trong hệ thống');
   }
 
   res.status(200).json({
@@ -258,7 +258,7 @@ const updateUser = asyncHandle(async (req, res) => {
 
   if (!user) {
     res.status(404);
-    throw new Error('Không tìm thấy tài khoản này');
+    throw new Error('Không tìm thấy tài khoản trong hệ thống');
   }
 
   // update data

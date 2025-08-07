@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const UserStatus = require('../enums/userStatus');
+const EmployeeGender = require('../enums/employeeGender');
+const EmployeeType = require('../enums/employeeTypes');
 
 const EmployeeSchema = new mongoose.Schema({
   fullname: {
@@ -28,19 +30,21 @@ const EmployeeSchema = new mongoose.Schema({
     type: String,
   },
   phone: {
-    type: Number,
+    type: String,
   },
   birthday: {
     type: Date,
   },
   gender: {
     type: String,
+    enum: [EmployeeGender.MALE, EmployeeGender.FEMALE],
   },
   designation: {
     type: String,
   },
   type: {
     type: String,
+    enum: [EmployeeType.OFFICE, EmployeeType.REMOTE],
   },
   joinDate: {
     type: Date,

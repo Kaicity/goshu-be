@@ -1,5 +1,5 @@
 const Router = require('express');
-const { createDepartment, getAllDepartments } = require('../controllers/departmentController');
+const { createDepartment, getAllDepartments } = require('../controllers/department.controller');
 
 const departmentRouter = Router();
 
