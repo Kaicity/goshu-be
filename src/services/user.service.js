@@ -1,10 +1,7 @@
-const asyncHandle = require('express-async-handler');
 const UserModel = require('../models/userModel');
 const EmployeeModel = require('../models/employeeModel');
 const hashPassword = require('../utils/hashPassword');
 const generateRandomCode = require('../utils/digitCodeRandom');
-const nodemailer = require('nodemailer');
-const paginate = require('../utils/paginate');
 const { isValidObjectId } = require('mongoose');
 const UserStatus = require('../enums/userStatus');
 const { verificationData, forgotPasswordData } = require('../constants/mailerTheme');
