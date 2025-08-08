@@ -89,7 +89,7 @@ const getUser = asyncHandle(async (req, res) => {
 const updateUser = asyncHandle(async (req, res) => {
   const { id } = req.params;
 
-  const result = await updateUserService(id);
+  const result = await updateUserService(id, req.body);
 
   res.status(200).json({
     message: 'Cập nhật tài khoản thành công',

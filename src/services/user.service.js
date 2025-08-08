@@ -202,7 +202,7 @@ const getUserService = async ({ email }) => {
   return { data };
 };
 
-const updateUserService = async (id) => {
+const updateUserService = async (id, updateData) => {
   // Kiểm tra object id hợp lệ
   if (!isValidObjectId(id)) {
     const err = new Error('Invalid user ID format');
@@ -219,7 +219,7 @@ const updateUserService = async (id) => {
   }
 
   // update data
-  const { email, role, status, password } = req.body;
+  const { email, role, status, password } = updateData;
 
   if (email && email !== user.email) {
     const existingEmailUser = await UserModel.findOne({ email });
