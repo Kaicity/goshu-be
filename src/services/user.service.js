@@ -205,15 +205,17 @@ const getUserService = async ({ email }) => {
 const updateUserService = async (id) => {
   // Kiểm tra object id hợp lệ
   if (!isValidObjectId(id)) {
-    res.status(400);
-    throw new Error('Invalid user ID format');
+    const err = new Error('Invalid user ID format');
+    err.statusCode = 400;
+    throw err;
   }
 
   const user = await UserModel.findById(id);
 
   if (!user) {
-    res.status(404);
-    throw new Error('Không tìm thấy tài khoản trong hệ thống');
+    const err = new Error('Không tìm thấy tài khoản trong hệ thống');
+    err.statusCode = 404;
+    throw err;
   }
 
   // update data
@@ -223,8 +225,9 @@ const updateUserService = async (id) => {
     const existingEmailUser = await UserModel.findOne({ email });
 
     if (existingEmailUser) {
-      res.status(409);
-      throw new Error('Tài khoản Email người dùng đã tồn tại');
+      const err = new Error('Tài khoản Email người dùng đã tồn tại');
+      err.statusCode = 409;
+      throw err;
     }
 
     user.email = email;
