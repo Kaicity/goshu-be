@@ -1,4 +1,5 @@
 const DepartmentModel = require('../models/departmentModel');
+const EmployeeModel = require('../models/employeeModel');
 
 const createDepartmentService = async (createData) => {
   const { name, description } = createData;
@@ -48,4 +49,51 @@ const getAllDepartmentsService = async ({ page, limit, skip, search }) => {
   };
 };
 
-module.exports = { createDepartmentService, getAllDepartmentsService };
+const updateDepartmentService = async (id, updateData) => {
+  // Kiểm tra object id hợp lệ
+  if (!isValidObjectId(id)) {
+    const err = new Error('Invalid employee ID format');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const department = await DepartmentModel.findByIdAndUpdate(id, updateData);
+  await department.save();
+
+  const data = {
+    name: department.name,
+    description: department.description,
+  };
+
+  return { data };
+};
+
+const deleteDepartmentService = async (id) => {
+  // Kiểm tra object id hợp lệ
+  if (!isValidObjectId(id)) {
+    const err = new Error('Invalid employee ID format');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const department = await DepartmentModel.findById(id);
+
+  if (!department) {
+    const err = new Error('Không tìm thấy phòng ban này');
+    err.statusCode = 404;
+    throw err;
+  }
+
+  //Kiem tra phong ban tu nhan vien
+  const employee = await EmployeeModel.find({ departmentId: department._id });
+
+  if (employee) {
+    const err = new Error('Hiện không thể xóa phòng ban này vì đang có nhân viên hoạt động');
+    err.statusCode = 403;
+    throw err;
+  }
+
+  await DepartmentModel.findByIdAndDelete(id);
+};
+
+module.exports = { createDepartmentService, getAllDepartmentsService, updateDepartmentService, deleteDepartmentService };
