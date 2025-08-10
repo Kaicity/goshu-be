@@ -59,7 +59,7 @@ const createAccount = asyncHandle(async (req, res) => {
   const result = await createAccountService(req.body);
 
   res.status(200).json({
-    message: 'Tạo tài khoản người dùng thành công',
+    message: 'create new user account sucessfully',
     ...result,
   });
 });
@@ -70,7 +70,7 @@ const deleteAccount = asyncHandle(async (req, res) => {
   await deleteAccountService(id);
 
   res.status(200).json({
-    message: 'Xóa tài khoản người dùng thành công',
+    message: 'Delete user account successfully',
     data: {},
   });
 });
@@ -92,7 +92,7 @@ const updateUser = asyncHandle(async (req, res) => {
   const result = await updateUserService(id, req.body);
 
   res.status(200).json({
-    message: 'Cập nhật tài khoản thành công',
+    message: 'Updated user account sucessfully',
     ...result,
   });
 });

@@ -5,13 +5,14 @@ const {
   getAllDepartmentsService,
   updateDepartmentService,
   deleteDepartmentService,
+  getDepartmentService,
 } = require('../services/department.service');
 
 const createDepartment = asyncHandle(async (req, res) => {
   const result = await createDepartmentService(req.body);
 
   res.status(200).json({
-    message: 'Tạo phòng ban thành công',
+    message: 'create new department sucessfully',
     ...result,
   });
 });
@@ -32,7 +33,7 @@ const updateDepartment = asyncHandle(async (req, res) => {
   const result = await updateDepartmentService(id, req.body);
 
   res.status(200).json({
-    message: 'Cập nhật phòng ban thành công',
+    message: 'Updated department sucessfully',
     ...result,
   });
 });
@@ -42,9 +43,19 @@ const deleteDepartment = asyncHandle(async (req, res) => {
   await deleteDepartmentService(id);
 
   res.status(200).json({
-    message: 'Xóa phòng ban thành công',
+    message: 'Deleted department sucessfully',
     data: {},
   });
 });
 
-module.exports = { createDepartment, getAllDepartments, updateDepartment, deleteDepartment };
+const getDepartment = asyncHandle(async (req, res) => {
+  const { id } = req.params;
+  const result = await getDepartmentService(id);
+
+  res.status(200).json({
+    message: 'Get department sucessfully',
+    ...result,
+  });
+});
+
+module.exports = { createDepartment, getAllDepartments, updateDepartment, deleteDepartment, getDepartment };

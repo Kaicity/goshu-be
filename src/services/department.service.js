@@ -1,3 +1,4 @@
+const { isValidObjectId } = require('mongoose');
 const DepartmentModel = require('../models/departmentModel');
 const EmployeeModel = require('../models/employeeModel');
 
@@ -52,7 +53,7 @@ const getAllDepartmentsService = async ({ page, limit, skip, search }) => {
 const updateDepartmentService = async (id, updateData) => {
   // Kiểm tra object id hợp lệ
   if (!isValidObjectId(id)) {
-    const err = new Error('Invalid employee ID format');
+    const err = new Error('Invalid deparment ID format');
     err.statusCode = 400;
     throw err;
   }
@@ -71,7 +72,7 @@ const updateDepartmentService = async (id, updateData) => {
 const deleteDepartmentService = async (id) => {
   // Kiểm tra object id hợp lệ
   if (!isValidObjectId(id)) {
-    const err = new Error('Invalid employee ID format');
+    const err = new Error('Invalid department ID format');
     err.statusCode = 400;
     throw err;
   }
@@ -84,7 +85,7 @@ const deleteDepartmentService = async (id) => {
     throw err;
   }
 
-  //Kiem tra phong ban tu nhan vien
+  //Kiểm tra nhân viên có hoạt động trong phòng ban
   const employee = await EmployeeModel.find({ departmentId: department._id });
 
   if (employee) {
@@ -96,4 +97,29 @@ const deleteDepartmentService = async (id) => {
   await DepartmentModel.findByIdAndDelete(id);
 };
 
-module.exports = { createDepartmentService, getAllDepartmentsService, updateDepartmentService, deleteDepartmentService };
+const getDepartmentService = async (id) => {
+  if (!isValidObjectId(id)) {
+    const err = new Error('Invalid department ID format');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const department = await DepartmentModel.findById(id);
+
+  const data = {
+    name: department.name,
+    description: department.description,
+    createdAt: department.createdAt,
+    updatedAt: department.updatedAt,
+  };
+
+  return { data };
+};
+
+module.exports = {
+  createDepartmentService,
+  getAllDepartmentsService,
+  updateDepartmentService,
+  deleteDepartmentService,
+  getDepartmentService,
+};

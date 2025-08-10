@@ -21,7 +21,7 @@ const updateEmployee = asyncHandle(async (req, res) => {
   const result = await updateEmployeeService(id, req.body);
 
   res.status(200).json({
-    message: 'Cập nhật thông tin nhân viên thành công',
+    message: 'Updated employee sucessfully',
     ...result,
   });
 });
@@ -32,7 +32,7 @@ const getEmployee = asyncHandle(async (req, res) => {
   const result = await getEmployeeService(id);
 
   res.status(200).json({
-    message: 'Lấy thông tin nhân viên thành công',
+    message: 'Get employee sucessfully',
     ...result,
   });
 });
