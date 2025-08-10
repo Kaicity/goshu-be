@@ -134,6 +134,7 @@ const getEmployeeService = async (id) => {
     employeeCode: employee.employeeCode,
     fullname: employee.fullname,
     username: employee.username,
+    email: employee.email,
     githubId: employee.githubId,
     slackId: employee.slackId,
     microsoftTeamId: employee.microsoftTeamId,
