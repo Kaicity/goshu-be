@@ -86,7 +86,7 @@ const deleteDepartmentService = async (id) => {
   }
 
   //Kiểm tra nhân viên có hoạt động trong phòng ban
-  const employee = await EmployeeModel.find({ departmentId: department._id });
+  const employee = await EmployeeModel.findOne({ departmentId: department._id });
 
   if (employee) {
     const err = new Error('Hiện không thể xóa phòng ban này vì đang có nhân viên hoạt động');
