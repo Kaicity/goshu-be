@@ -74,7 +74,7 @@ const updateEmployeeService = async (id, updateData) => {
   }
 
   if (username && username !== employee.username) {
-    const existingUsername = await EmployeeModel.findOne({ username });
+    const existingUsername = await EmployeeModel.findOne({ username: username });
 
     if (existingUsername) {
       const err = new Error('Username đã được sử dụng');
@@ -82,7 +82,7 @@ const updateEmployeeService = async (id, updateData) => {
       throw err;
     }
 
-    user.email = email;
+    employee.username = username;
   }
 
   // Mapping dữ liệu cũ sang dữ liệu mới
