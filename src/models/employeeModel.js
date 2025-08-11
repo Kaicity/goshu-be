@@ -18,6 +18,9 @@ const EmployeeSchema = new mongoose.Schema({
   email: {
     type: String,
   },
+  internalEmail: {
+    type: String,
+  },
   githubId: {
     type: String,
   },
