@@ -109,6 +109,8 @@ const updateEmployeeService = async (id, updateData) => {
     document: employee.document,
     departmentId: employee.departmentId,
     status: employee.status,
+    marital: employee.marital,
+    country: employee.country,
     updatedAt: employee.updatedAt,
   };
 
@@ -150,6 +152,8 @@ const getEmployeeService = async (id) => {
     document: employee.document,
     departmentId: employee.departmentId,
     status: employee.status,
+    marital: employee.marital,
+    country: employee.country,
     updatedAt: employee.updatedAt,
   };
 

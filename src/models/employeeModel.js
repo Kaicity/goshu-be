@@ -65,6 +65,12 @@ const EmployeeSchema = new mongoose.Schema({
     type: String,
     enum: [UserStatus.ACTIVE, UserStatus.INACTIVE, UserStatus.SUSPENDED, UserStatus.PENDING],
   },
+  marital: {
+    type: String,
+  },
+  country: {
+    type: String,
+  },
   createdAt: {
     type: Date,
     default: Date.now(),
