@@ -111,6 +111,7 @@ const updateEmployeeService = async (id, updateData) => {
     status: employee.status,
     marital: employee.marital,
     country: employee.country,
+    internalEmail: employee.internalEmail,
     updatedAt: employee.updatedAt,
   };
 
@@ -137,7 +138,7 @@ const getEmployeeService = async (id) => {
     fullname: employee.fullname,
     username: employee.username,
     email: employee.email,
-    internal: employee.internalEmail,
+    internalEmail: employee.internalEmail,
     githubId: employee.githubId,
     slackId: employee.slackId,
     microsoftTeamId: employee.microsoftTeamId,
