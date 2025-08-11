@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const UserStatus = require('../enums/userStatus');
 const EmployeeGender = require('../enums/employeeGender');
 const EmployeeType = require('../enums/employeeTypes');
+const MaritalStatus = require('../enums/maritalStatus');
 
 const EmployeeSchema = new mongoose.Schema({
   fullname: {
@@ -67,6 +68,7 @@ const EmployeeSchema = new mongoose.Schema({
   },
   marital: {
     type: String,
+    enum: [MaritalStatus.SINGLE, MaritalStatus.MARRIED, MaritalStatus.DIVORCED],
   },
   country: {
     type: String,
