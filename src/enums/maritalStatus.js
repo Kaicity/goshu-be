@@ -1,7 +1,7 @@
 const MaritalStatus = Object.freeze({
-  SINGLE: 'Độc thân',
-  MARRIED: 'Đã kết hôn',
-  DIVORCED: 'Ly hôn',
+  SINGLE: 'SINGLE',
+  MARRIED: 'MARRIED',
+  DIVORCED: 'DIVORCED',
 });
 
 module.exports = MaritalStatus;
