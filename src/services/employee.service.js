@@ -26,11 +26,12 @@ const getAllEmployeesService = async ({ page, limit, skip, search }, { departmen
     fullname: item.fullname,
     email: item.email,
     employeeCode: item.employeeCode,
-    departmentId: item.departmentId,
-    department: item.departmentId ? {
-      id: item.departmentId._id,
-      name: item.departmentId.name,
-    } : null,
+    departmentId: item.departmentId
+      ? {
+          id: item.departmentId.id,
+          name: item.departmentId.name,
+        }
+      : null,
     designation: item.designation,
     type: item.type,
     status: item.status,
