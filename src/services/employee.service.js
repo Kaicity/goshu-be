@@ -18,7 +18,7 @@ const getAllEmployeesService = async ({ page, limit, skip, search }, { departmen
 
   const [total, employees] = await Promise.all([
     EmployeeModel.countDocuments(query),
-    EmployeeModel.find(query).skip(skip).limit(limit).sort({ createdAt: -1 }),
+    EmployeeModel.find(query).skip(skip).limit(limit).sort({ createdAt: -1 }).populate('departmentId', 'name'),
   ]);
 
   const data = employees.map((item) => ({
@@ -27,7 +27,12 @@ const getAllEmployeesService = async ({ page, limit, skip, search }, { departmen
     lastname: item.lastname,
     email: item.email,
     employeeCode: item.employeeCode,
-    departmentId: item.departmentId,
+    departmentId: item.departmentId
+      ? {
+          id: item.departmentId.id,
+          name: item.departmentId.name,
+        }
+      : null,
     designation: item.designation,
     type: item.type,
     status: item.status,
