@@ -24,7 +24,8 @@ const getAllEmployeesService = async ({ page, limit, skip, search }, { departmen
   const data = employees.map((item) => ({
     avatarUrl: item.avatarUrl,
     id: item.id,
-    fullname: item.fullname,
+    firstname: item.firstname,
+    lastname: item.lastname,
     email: item.email,
     employeeCode: item.employeeCode,
     departmentId: item.departmentId ? {
@@ -95,27 +96,40 @@ const updateEmployeeService = async (id, updateData) => {
   await employee.save();
 
   const data = {
+    // Định danh
     id: employee.id,
-    fullname: employee.fullname,
+    firstname: employee.firstname,
+    lastname: employee.lastname,
     username: employee.username,
+    avatarUrl: employee.avatarUrl,
+
+    // Liên hệ
+    phone: employee.phone,
+    address: employee.address,
+    country: employee.country,
+    internalEmail: employee.internalEmail,
+
+    // Cá nhân
+    gender: employee.gender,
+    birthday: employee.birthday,
+    marital: employee.marital,
+    identityCard: employee.identityCard,
+
+    // Công việc
+    designation: employee.designation,
+    departmentId: employee.departmentId,
+    type: employee.type,
+    joinDate: employee.joinDate,
+    workingDate: employee.workingDate,
+    status: employee.status,
+    document: employee.document,
+
+    // Tài khoản liên kết
     githubId: employee.githubId,
     slackId: employee.slackId,
     microsoftTeamId: employee.microsoftTeamId,
-    address: employee.address,
-    phone: employee.phone,
-    birthday: employee.birthday,
-    gender: employee.gender,
-    designation: employee.designation,
-    joinDate: employee.joinDate,
-    workingDate: employee.workingDate,
-    avatarUrl: employee.avatarUrl,
-    type: employee.type,
-    document: employee.document,
-    departmentId: employee.departmentId,
-    status: employee.status,
-    marital: employee.marital,
-    country: employee.country,
-    internalEmail: employee.internalEmail,
+
+    // Hệ thống
     updatedAt: employee.updatedAt,
   };
 
@@ -138,28 +152,41 @@ const getEmployeeService = async (id) => {
   }
 
   const data = {
+    // 1. Định danh nhân viên
     employeeCode: employee.employeeCode,
-    fullname: employee.fullname,
+    firstname: employee.firstname,
+    lastname: employee.lastname,
     username: employee.username,
+    avatarUrl: employee.avatarUrl,
+    identityCard: employee.identityCard,
+
+    // 2. Thông tin liên hệ
     email: employee.email,
     internalEmail: employee.internalEmail,
+    phone: employee.phone,
+    address: employee.address,
+    country: employee.country,
+
+    // 3. Thông tin cá nhân
+    gender: employee.gender,
+    birthday: employee.birthday,
+    marital: employee.marital,
+
+    // 4. Thông tin công việc
+    designation: employee.designation,
+    departmentId: employee.departmentId,
+    type: employee.type,
+    joinDate: employee.joinDate,
+    workingDate: employee.workingDate,
+    status: employee.status,
+    document: employee.document,
+
+    // 5. Tài khoản liên kết
     githubId: employee.githubId,
     slackId: employee.slackId,
     microsoftTeamId: employee.microsoftTeamId,
-    address: employee.address,
-    phone: employee.phone,
-    birthday: employee.birthday,
-    gender: employee.gender,
-    designation: employee.designation,
-    joinDate: employee.joinDate,
-    workingDate: employee.workingDate,
-    avatarUrl: employee.avatarUrl,
-    type: employee.type,
-    document: employee.document,
-    departmentId: employee.departmentId,
-    status: employee.status,
-    marital: employee.marital,
-    country: employee.country,
+
+    // 6. Thông tin hệ thống
     updatedAt: employee.updatedAt,
   };
 
