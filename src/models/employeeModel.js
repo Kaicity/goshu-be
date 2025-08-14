@@ -5,7 +5,10 @@ const EmployeeType = require('../enums/employeeTypes');
 const MaritalStatus = require('../enums/maritalStatus');
 
 const EmployeeSchema = new mongoose.Schema({
-  fullname: {
+  firstname: {
+    type: String,
+  },
+  lastname: {
     type: String,
   },
   username: {
@@ -14,6 +17,9 @@ const EmployeeSchema = new mongoose.Schema({
   employeeCode: {
     type: String,
     required: true,
+  },
+  identityCard: {
+    type: String,
   },
   email: {
     type: String,
