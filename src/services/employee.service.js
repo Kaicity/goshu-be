@@ -7,7 +7,8 @@ const getAllEmployeesService = async ({ page, limit, skip, search }, { departmen
 
   if (search) {
     query.$or = [
-      { fullname: { $regex: search, $options: 'i' } },
+      { firstname: { $regex: search, $options: 'i' } },
+      { lastname: { $regex: search, $options: 'i' } },
       { email: { $regex: search, $options: 'i' } },
       { employeeCode: { $regex: search, $options: 'i' } },
     ];
@@ -28,10 +29,12 @@ const getAllEmployeesService = async ({ page, limit, skip, search }, { departmen
     lastname: item.lastname,
     email: item.email,
     employeeCode: item.employeeCode,
-    departmentId: item.departmentId ? {
-      id: item.departmentId._id,
-      name: item.departmentId.name,
-    } : null,
+    departmentId: item.departmentId
+      ? {
+          id: item.departmentId._id,
+          name: item.departmentId.name,
+        }
+      : null,
     designation: item.designation,
     type: item.type,
     status: item.status,
