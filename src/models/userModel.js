@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const userRole = require('../enums/userRoles');
 const UserStatus = require('../enums/userStatus');
+const { getCurrentTime } = require('../utils/timeZone');
 
 const UserSchema = new mongoose.Schema({
   email: {
@@ -30,11 +31,11 @@ const UserSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: Date.now(),
+    default: getCurrentTime(),
   },
   updatedAt: {
     type: Date,
-    default: Date.now(),
+    default: getCurrentTime(),
   },
 });
 

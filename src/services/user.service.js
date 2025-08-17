@@ -8,6 +8,7 @@ const { verificationData, forgotPasswordData } = require('../constants/mailerThe
 const { getIO } = require('../configs/socket');
 const UserRoles = require('../enums/userRoles');
 const handleSendEmailService = require('../services/mailer.service');
+const { getCurrentTime } = require('../utils/timeZone');
 
 const createAccountService = async (createData) => {
   const { email, password, role, status } = createData;
@@ -82,7 +83,7 @@ const forgotPasswordService = async ({ email }) => {
   const user = await UserModel.findOne({ email });
 
   if (!user) {
-    const err = new Error('Không tìm thấy tài khoản trong hệ thống');
+    const err = new Error('Not found user account');
     err.statusCode = 404;
     throw err;
   }
@@ -100,7 +101,7 @@ const changePasswordService = async (changePasswordData) => {
   const user = await UserModel.findOne({ email });
 
   if (!user) {
-    const err = new Error('Không tìm thấy tài khoản trong hệ thống');
+    const err = new Error('Not found user account');
     err.statusCode = 403;
     throw err;
   }
@@ -159,7 +160,7 @@ const deleteAccountService = async (id) => {
   const user = await UserModel.findById(id);
 
   if (!user) {
-    const err = new Error('Không tìm thấy tài khoản trong hệ thống');
+    const err = new Error('Not found user account');
     err.statusCode = 404;
     throw err;
   }
@@ -184,7 +185,7 @@ const getUserService = async ({ email }) => {
   const user = await UserModel.findOne({ email });
 
   if (!user) {
-    const err = new Error('Không tìm thấy tài khoản trong hệ thống');
+    const err = new Error('Not found user account');
     err.statusCode = 404;
     throw err;
   }
@@ -237,7 +238,7 @@ const updateUserService = async (id, updateData) => {
   if (status) user.status = status;
   if (password) user.password = await hashPassword(password);
 
-  user.updatedAt = Date.now();
+  user.updatedAt = getCurrentTime();
 
   const updatedUser = await user.save();
 
@@ -246,7 +247,7 @@ const updateUserService = async (id, updateData) => {
     email: updatedUser.email,
     role: updatedUser.role,
     employeeId: updatedUser.employeeId,
-    updatedAt: Date.now(),
+    updatedAt: updatedUser.updatedAt,
   };
 
   return { data };
