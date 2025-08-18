@@ -1,6 +1,7 @@
 const { isValidObjectId } = require('mongoose');
 const DepartmentModel = require('../models/departmentModel');
 const EmployeeModel = require('../models/employeeModel');
+const { getCurrentTime } = require('../utils/timeZone');
 
 const createDepartmentService = async (createData) => {
   const { name, description } = createData;
@@ -59,6 +60,7 @@ const updateDepartmentService = async (id, updateData) => {
   }
 
   const department = await DepartmentModel.findByIdAndUpdate(id, updateData);
+  department.updatedAt = getCurrentTime();
   await department.save();
 
   const data = {
@@ -80,7 +82,7 @@ const deleteDepartmentService = async (id) => {
   const department = await DepartmentModel.findById(id);
 
   if (!department) {
-    const err = new Error('Không tìm thấy phòng ban này');
+    const err = new Error('Not found department');
     err.statusCode = 404;
     throw err;
   }
