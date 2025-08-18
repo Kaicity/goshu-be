@@ -100,7 +100,7 @@ const updateEmployeeService = async (id, updateData) => {
   await employee.save();
 
   // populate lại departmentId để có name nè
-  employee = await employee.populate('departmentId', 'name');
+  await employee.populate('departmentId', 'name');
 
   const data = {
     // Định danh
