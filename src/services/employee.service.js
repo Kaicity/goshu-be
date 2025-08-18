@@ -31,7 +31,7 @@ const getAllEmployeesService = async ({ page, limit, skip, search }, { departmen
     employeeCode: item.employeeCode,
     departmentId: item.departmentId
       ? {
-          id: item.departmentId._id,
+          id: item.departmentId.id,
           name: item.departmentId.name,
         }
       : null,
@@ -123,10 +123,12 @@ const updateEmployeeService = async (id, updateData) => {
 
     // Công việc
     designation: employee.designation,
-    departmentId: employee.departmentId ? {
-      id: employee.departmentId._id.toString(),
-      name: employee.departmentId.name,
-    } : null,
+    departmentId: employee.departmentId
+      ? {
+          id: employee.departmentId.id.toString(),
+          name: employee.departmentId.name,
+        }
+      : null,
     type: employee.type,
     joinDate: employee.joinDate,
     workingDate: employee.workingDate,
@@ -185,7 +187,7 @@ const getEmployeeService = async (id) => {
     designation: employee.designation,
     departmentId: employee.departmentId
       ? {
-          id: employee.departmentId._id.toString(),
+          id: employee.departmentId.id.toString(),
           name: employee.departmentId.name,
         }
       : null,
