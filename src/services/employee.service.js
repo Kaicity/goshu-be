@@ -99,9 +99,6 @@ const updateEmployeeService = async (id, updateData) => {
   employee.updatedAt = getCurrentTime();
   await employee.save();
 
-  // populate lại departmentId để có name nè
-  employee = await employee.populate('departmentId', 'name');
-
   const data = {
     // Định danh
     id: employee.id,
@@ -124,12 +121,7 @@ const updateEmployeeService = async (id, updateData) => {
 
     // Công việc
     designation: employee.designation,
-    departmentId: employee.departmentId
-      ? {
-          id: employee.departmentId.id.toString(),
-          name: employee.departmentId.name,
-        }
-      : null,
+    departmentId: employee.departmentId,
     type: employee.type,
     joinDate: employee.joinDate,
     workingDate: employee.workingDate,
