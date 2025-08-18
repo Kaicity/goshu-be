@@ -98,6 +98,9 @@ const updateEmployeeService = async (id, updateData) => {
   employee.updatedAt = Date.now();
   await employee.save();
 
+  // populate lại departmentId để có name nè
+  employee = await employee.populate('departmentId', 'name');
+
   const data = {
     // Định danh
     id: employee.id,
@@ -146,7 +149,7 @@ const getEmployeeService = async (id) => {
     throw err;
   }
 
-  const employee = await EmployeeModel.findById(id);
+  const employee = await EmployeeModel.findById(id).populate('departmentId', 'name');
 
   if (!employee) {
     const err = new Error('Không tìm thấy nhân viên này');
@@ -177,7 +180,12 @@ const getEmployeeService = async (id) => {
 
     // 4. Thông tin công việc
     designation: employee.designation,
-    departmentId: employee.departmentId,
+    departmentId: employee.departmentId
+      ? {
+          id: employee.departmentId._id.toString(),
+          name: employee.departmentId.name,
+        }
+      : null,
     type: employee.type,
     joinDate: employee.joinDate,
     workingDate: employee.workingDate,
