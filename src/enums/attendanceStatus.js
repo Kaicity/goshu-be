@@ -1,6 +1,6 @@
 const AttendanceStatus = Object.freeze({
   PRESENT: 'PRESENT',
-  ABSENT: 'ABSENT',
+  // ABSENT: 'ABSENT',
   LATE: 'LATE',
   ONLEAVE: 'ONLEAVE',
 });

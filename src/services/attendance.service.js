@@ -1,6 +1,7 @@
 const AttendanceStatus = require('../enums/attendanceStatus');
 const AttendanceModel = require('../models/attendanceModel');
 const { getCurrentTime } = require('../utils/timeZone');
+const EmployeeModel = require('../models/employeeModel');
 
 const checkInService = async (checkInData) => {
   const { employeeId } = checkInData;
@@ -87,4 +88,64 @@ const checkOutService = async (checkOutData) => {
   return { data };
 };
 
-module.exports = { checkInService, checkOutService };
+const getAllAttendancesService = async ({ page, limit, skip, search }, { date, status }) => {
+  const query = {};
+
+  // Search query đến bảng employee vì trong bảng này không chưa fullname, employeeCode
+  if (search) {
+    const employees = await EmployeeModel.find({
+      $or: [
+        { firstname: { $regex: search, $options: 'i' } },
+        { lastname: { $regex: search, $options: 'i' } },
+        { employeeCode: { $regex: search, $options: 'i' } },
+      ],
+    }).select('_id');
+
+    query.employeeId = { $in: employees.map((e) => e._id) }; // mapping id employee query
+  }
+
+  if (date) {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    query.date = { $gte: startOfDay, $lte: endOfDay };
+  }
+
+  if (status) query.status = status;
+
+  const [total, attendances] = await Promise.all([
+    AttendanceModel.countDocuments(query),
+    AttendanceModel.find(query)
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 })
+      .populate('employeeId', 'firstname lastname employeeCode'),
+  ]);
+
+  const data = attendances.map((item) => ({
+    employee: item.employeeId
+      ? {
+          id: item.employeeId._id,
+          employeeCode: item.employeeId.employeeCode,
+          firstname: item.employeeId.firstname,
+          lastname: item.employeeId.lastname,
+        }
+      : null,
+    updatedAt: item.updatedAt,
+  }));
+
+  return {
+    data,
+    pagination: {
+      totalItems: total,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      limit,
+    },
+  };
+};
+
+module.exports = { checkInService, checkOutService, getAllAttendancesService };

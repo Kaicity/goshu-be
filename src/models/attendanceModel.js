@@ -20,9 +20,10 @@ const AttendanceSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: [AttendanceStatus.PRESENT, AttendanceStatus.ABSENT, AttendanceStatus.LATE, AttendanceStatus.ONLEAVE],
+    enum: [AttendanceStatus.PRESENT, AttendanceStatus.LATE, AttendanceStatus.ONLEAVE],
   },
   createdAt: { type: Date, default: getCurrentTime() },
+  updatedAt: { type: Date, default: getCurrentTime() },
 });
 
 const AttendanceModel = mongoose.model('attendances', AttendanceSchema);
