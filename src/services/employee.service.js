@@ -123,7 +123,10 @@ const updateEmployeeService = async (id, updateData) => {
 
     // Công việc
     designation: employee.designation,
-    departmentId: employee.departmentId,
+    departmentId: employee.departmentId ? {
+      id: employee.departmentId._id.toString(),
+      name: employee.departmentId.name,
+    } : null,
     type: employee.type,
     joinDate: employee.joinDate,
     workingDate: employee.workingDate,
