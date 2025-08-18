@@ -1,6 +1,7 @@
 const { isValidObjectId } = require('mongoose');
 const EmployeeModel = require('../models/employeeModel');
 const DepartmentModel = require('../models/departmentModel');
+const { getCurrentTime } = require('../utils/timeZone');
 
 const getAllEmployeesService = async ({ page, limit, skip, search }, { department, type }) => {
   const query = {};
@@ -63,7 +64,7 @@ const updateEmployeeService = async (id, updateData) => {
   const employee = await EmployeeModel.findById(id);
 
   if (!employee) {
-    const err = new Error('Không tìm thấy nhân viên trong hệ thống');
+    const err = new Error('Not found Employee');
     err.statusCode = 404;
     throw err;
   }
@@ -75,7 +76,7 @@ const updateEmployeeService = async (id, updateData) => {
     const department = await DepartmentModel.findById(departmentId);
 
     if (!department) {
-      const err = new Error('Không tìm thấy phòng ban này');
+      const err = new Error('Not found department');
       err.statusCode = 404;
       throw err;
     }
@@ -95,7 +96,7 @@ const updateEmployeeService = async (id, updateData) => {
 
   // Mapping dữ liệu cũ sang dữ liệu mới
   Object.assign(employee, updateData);
-  employee.updatedAt = Date.now();
+  employee.updatedAt = getCurrentTime();
   await employee.save();
 
   // populate lại departmentId để có name nè
@@ -155,7 +156,7 @@ const getEmployeeService = async (id) => {
   const employee = await EmployeeModel.findById(id).populate('departmentId', 'name');
 
   if (!employee) {
-    const err = new Error('Không tìm thấy nhân viên này');
+    const err = new Error('Not found employee');
     err.statusCode = 404;
     throw err;
   }
