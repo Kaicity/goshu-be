@@ -30,7 +30,7 @@ app.use(express.json());
 app.use('/auth', authRouter);
 app.use('/users', userRouter);
 app.use('/employees', employeeRouter);
-app.use('/departments', verifyToken, authorizeRole(UserRoles.ADMIN), departmentRouter);
+app.use('/departments', verifyToken, authorizeRole(UserRoles.ADMIN, UserRoles.HR), departmentRouter);
 app.use('/attendances', verifyToken, attendanceRouter);
 
 // Route default when app running
