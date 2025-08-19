@@ -1,11 +1,6 @@
 const asyncHandle = require('express-async-handler');
 const paginate = require('../utils/paginate');
-const {
-  checkInService,
-  checkOutService,
-  getAllAttendancesService,
-  updateAttendanceService,
-} = require('../services/attendance.service');
+const { checkInService, checkOutService, getAllAttendancesService } = require('../services/attendance.service');
 
 const checkIn = asyncHandle(async (req, res) => {
   const result = await checkInService(req.body);
