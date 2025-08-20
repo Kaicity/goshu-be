@@ -7,7 +7,6 @@ const attendanceRouter = new Router();
 
 attendanceRouter.post('/checkin', checkIn);
 attendanceRouter.post('/checkout', checkOut);
-attendanceRouter.get('/getAllByEmployee', getAllAttendanceByEmployee);
 attendanceRouter.get('/getAll', authorizeRole(UserRoles.ADMIN, UserRoles.HR), getAllAttendance);
 
 module.exports = attendanceRouter;

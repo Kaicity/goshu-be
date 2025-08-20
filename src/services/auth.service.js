@@ -15,12 +15,12 @@ const authService = async ({ email, password }) => {
   const isMatchPassword = await bcrypt.compare(password, user.password);
   if (!isMatchPassword) {
     const err = new Error('Tài khoản hoặc mật khẩu không đúng');
-    err.statusCode = 401;
+    err.statusCode = 400;
     throw err;
   }
 
   if (user.status === UserStatus.INACTIVE) {
-    const err = new Error('Rất tiếc tài khoản người dùng đã tạm dừng');
+    const err = new Error('Rất tiếc tài khoản người dùng đã tạm dừng, liên hệ Admin để khôi phục!');
     err.statusCode = 403;
     throw err;
   }

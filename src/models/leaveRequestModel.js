@@ -12,6 +12,8 @@ const LeaveRequestSchema = new mongoose.Schema({
     enum: [LeaveRequestStatus.PENDING, LeaveRequestStatus.APPROVED, LeaveRequestStatus.REJECTED],
     default: LeaveRequestStatus.PENDING,
   },
+  approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'employees' },
+  note: { type: String },
   createdAt: { type: Date, default: getCurrentTime() },
 });
 

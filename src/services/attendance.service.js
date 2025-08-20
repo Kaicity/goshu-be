@@ -6,6 +6,14 @@ const EmployeeModel = require('../models/employeeModel');
 const checkInService = async (checkInData) => {
   const { employeeId } = checkInData;
 
+  const employee = await EmployeeModel.findById(employeeId);
+
+  if (!employee) {
+    const err = new Error('Employee not found in system');
+    err.statusCode = 404;
+    throw err;
+  }
+
   const today = getCurrentTime();
 
   //Ngày giờ bắt đầu 0:00:00:000
@@ -58,6 +66,14 @@ const checkInService = async (checkInData) => {
 const checkOutService = async (checkOutData) => {
   const { employeeId } = checkOutData;
 
+  const employee = await EmployeeModel.findById(employeeId);
+
+  if (!employee) {
+    const err = new Error('Employee not found in system');
+    err.statusCode = 404;
+    throw err;
+  }
+
   const today = getCurrentTime();
 
   const startOfDay = new Date(today);
@@ -88,7 +104,7 @@ const checkOutService = async (checkOutData) => {
   return { data };
 };
 
-const getAllAttendancesService = async ({ page, limit, skip, search }, { date, status }) => {
+const getAllAttendancesService = async ({ page, limit, skip, search }, { date, status, employeeId }) => {
   const query = {};
 
   // Search query đến bảng employee vì trong bảng này không chưa fullname, employeeCode
@@ -115,6 +131,7 @@ const getAllAttendancesService = async ({ page, limit, skip, search }, { date, s
   }
 
   if (status) query.status = status;
+  if (employeeId) query.employeeId = employeeId;
 
   const [total, attendances] = await Promise.all([
     AttendanceModel.countDocuments(query),
@@ -126,14 +143,19 @@ const getAllAttendancesService = async ({ page, limit, skip, search }, { date, s
   ]);
 
   const data = attendances.map((item) => ({
-    employee: item.employeeId
-      ? {
-          id: item.employeeId._id,
-          employeeCode: item.employeeId.employeeCode,
-          firstname: item.employeeId.firstname,
-          lastname: item.employeeId.lastname,
-        }
-      : null,
+    attendance: {
+      id: item.id,
+      date: item.date,
+      checkIn: item.checkIn,
+      checkOut: item.checkOut,
+      status: item.status,
+    },
+    employee: {
+      id: item.employeeId._id,
+      employeeCode: item.employeeId.employeeCode,
+      firstname: item.employeeId.firstname,
+      lastname: item.employeeId.lastname,
+    },
     updatedAt: item.updatedAt,
   }));
 
@@ -148,41 +170,4 @@ const getAllAttendancesService = async ({ page, limit, skip, search }, { date, s
   };
 };
 
-const getAllAttendancesEmployeeService = async ({ page, limit, skip, search }, { employeeId, date }) => {
-  const query = { employeeId };
-
-  if (date) {
-    const startOfDay = new Date(date);
-    startOfDay.setHours(0, 0, 0, 0);
-
-    const endOfDay = new Date(date);
-    endOfDay.setHours(23, 59, 59, 999);
-
-    query.date = { $gte: startOfDay, $lte: endOfDay };
-  }
-
-  const [total, attendances] = await Promise.all([
-    AttendanceModel.countDocuments(query),
-    AttendanceModel.find(query).skip(skip).limit(limit).sort({ createdAt: -1 }).select('date checkIn checkOut status'), // lấy vừa đủ dữ liệu
-  ]);
-
-  const data = attendances.map((item) => ({
-    id: item.id,
-    date: item.date,
-    checkIn: item.checkIn,
-    checkOut: item.checkOut,
-    status: item.status,
-  }));
-
-  return {
-    data,
-    pagination: {
-      totalItems: total,
-      currentPage: page,
-      totalPages: Math.ceil(total / limit),
-      limit,
-    },
-  };
-};
-
-module.exports = { checkInService, checkOutService, getAllAttendancesService, getAllAttendancesEmployeeService };
+module.exports = { checkInService, checkOutService, getAllAttendancesService };

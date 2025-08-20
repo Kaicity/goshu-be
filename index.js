@@ -16,6 +16,7 @@ const authorizeRole = require('./src/middlewares/authorizeRole');
 const { createDepartment } = require('./src/controllers/department.controller');
 const seedDepartment = require('./src/seeds/seedDepartment');
 const attendanceRouter = require('./src/routers/attendance.router');
+const leaveRequestRouter = require('./src/routers/leave-request.router');
 
 const app = express();
 const server = http.createServer(app);
@@ -32,6 +33,7 @@ app.use('/users', userRouter);
 app.use('/employees', employeeRouter);
 app.use('/departments', verifyToken, authorizeRole(UserRoles.ADMIN, UserRoles.HR), departmentRouter);
 app.use('/attendances', verifyToken, attendanceRouter);
+app.use('/leaveRequests/', verifyToken, leaveRequestRouter);
 
 // Route default when app running
 app.get('/', (req, res) => {
