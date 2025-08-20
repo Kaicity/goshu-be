@@ -148,4 +148,41 @@ const getAllAttendancesService = async ({ page, limit, skip, search }, { date, s
   };
 };
 
-module.exports = { checkInService, checkOutService, getAllAttendancesService };
+const getAllAttendancesEmployeeService = async ({ page, limit, skip, search }, { employeeId, date }) => {
+  const query = { employeeId };
+
+  if (date) {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    query.date = { $gte: startOfDay, $lte: endOfDay };
+  }
+
+  const [total, attendances] = await Promise.all([
+    AttendanceModel.countDocuments(query),
+    AttendanceModel.find(query).skip(skip).limit(limit).sort({ createdAt: -1 }).select('date checkIn checkOut status'), // lấy vừa đủ dữ liệu
+  ]);
+
+  const data = attendances.map((item) => ({
+    id: item.id,
+    date: item.date,
+    checkIn: item.checkIn,
+    checkOut: item.checkOut,
+    status: item.status,
+  }));
+
+  return {
+    data,
+    pagination: {
+      totalItems: total,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      limit,
+    },
+  };
+};
+
+module.exports = { checkInService, checkOutService, getAllAttendancesService, getAllAttendancesEmployeeService };

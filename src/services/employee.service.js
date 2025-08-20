@@ -2,6 +2,8 @@ const { isValidObjectId } = require('mongoose');
 const EmployeeModel = require('../models/employeeModel');
 const DepartmentModel = require('../models/departmentModel');
 const { getCurrentTime } = require('../utils/timeZone');
+const UserRoles = require('../enums/userRoles');
+const UserModel = require('../models/userModel');
 
 const getAllEmployeesService = async ({ page, limit, skip, search }, { department, type }) => {
   const query = {};
@@ -17,6 +19,15 @@ const getAllEmployeesService = async ({ page, limit, skip, search }, { departmen
 
   if (department) query.departmentId = department;
   if (type) query.type = type;
+
+  // Lấy danh sách employeeId có role ADMIN
+  const adminUsers = await UserModel.find({ role: UserRoles.ADMIN }).select('employeeId');
+  const adminEmployeeIds = adminUsers.map((u) => u.employeeId);
+
+  // Loại bỏ employeeId là ADMin
+  if (adminEmployeeIds.length > 0) {
+    query._id = { $nin: adminEmployeeIds };
+  }
 
   const [total, employees] = await Promise.all([
     EmployeeModel.countDocuments(query),
