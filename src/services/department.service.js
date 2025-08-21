@@ -59,13 +59,21 @@ const updateDepartmentService = async (id, updateData) => {
     throw err;
   }
 
-  const department = await DepartmentModel.findByIdAndUpdate(id, updateData);
-  department.updatedAt = getCurrentTime();
-  await department.save();
+  const departmentUpdated = await DepartmentModel.findByIdAndUpdate(
+    id,
+    { ...updateData, updatedAt: getCurrentTime() },
+    { new: true },
+  );
+
+  if (!departmentUpdated) {
+    const err = new Error('Department not found');
+    err.statusCode = 404;
+    throw err;
+  }
 
   const data = {
-    name: department.name,
-    description: department.description,
+    name: departmentUpdated.name,
+    description: departmentUpdated.description,
   };
 
   return { data };

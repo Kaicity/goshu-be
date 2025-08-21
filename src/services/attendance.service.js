@@ -151,7 +151,7 @@ const getAllAttendancesService = async ({ page, limit, skip, search }, { date, s
       status: item.status,
     },
     employee: {
-      id: item.employeeId._id,
+      id: item.employeeId.id,
       employeeCode: item.employeeId.employeeCode,
       firstname: item.employeeId.firstname,
       lastname: item.employeeId.lastname,

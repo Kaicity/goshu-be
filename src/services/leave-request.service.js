@@ -1,3 +1,4 @@
+const { isValidObjectId } = require('mongoose');
 const LeaveRequestStatus = require('../enums/leaveRequestStatus');
 const EmployeeModel = require('../models/employeeModel');
 const LeaveRequestModel = require('../models/leaveRequestModel');
@@ -5,6 +6,13 @@ const { getCurrentTime } = require('../utils/timeZone');
 
 const createLeaveRequestService = async (leaveRequestData) => {
   const { employeeId, startDate, endDate } = leaveRequestData;
+
+  // Kiểm tra object id hợp lệ
+  if (!isValidObjectId(employeeId)) {
+    const err = new Error('Invalid employee ID format');
+    err.statusCode = 400;
+    throw err;
+  }
 
   const employee = await EmployeeModel.findById(employeeId);
   if (!employee) {
@@ -89,4 +97,142 @@ const createLeaveRequestService = async (leaveRequestData) => {
   return { data };
 };
 
-module.exports = { createLeaveRequestService };
+const approveLeaveRequestService = async (id, leaveRequestData) => {
+  if (!isValidObjectId(id)) {
+    const err = new Error('Invalid leave request ID format');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const leaveRequestUpdated = await LeaveRequestModel.findByIdAndUpdate(id, leaveRequestData, { new: true });
+
+  if (!leaveRequestUpdated) {
+    const err = new Error('Leave request not found');
+    err.statusCode = 404;
+    throw err;
+  }
+
+  const data = {
+    employeeId: leaveRequestUpdated.employeeId,
+    startDate: leaveRequestUpdated.startDate,
+    endDate: leaveRequestUpdated.endDate,
+    reason: leaveRequestUpdated.reason,
+    status: leaveRequestUpdated.status,
+    note: leaveRequestUpdated.note,
+  };
+
+  return { data };
+};
+
+const getAllLeaveRequestsService = async ({ page, limit, skip, search }, { status, employeeId }) => {
+  const query = {};
+
+  // Search query đến bảng employee vì trong bảng này không chưa fullname, employeeCode
+  if (search) {
+    const employees = await EmployeeModel.find({
+      $or: [
+        { firstname: { $regex: search, $options: 'i' } },
+        { lastname: { $regex: search, $options: 'i' } },
+        { employeeCode: { $regex: search, $options: 'i' } },
+      ],
+    }).select('_id');
+
+    query.employeeId = { $in: employees.map((e) => e._id) }; // mapping id employee query
+  }
+
+  if (status) query.status = status;
+  if (employeeId) query.employeeId = employeeId;
+
+  const [total, leaveRequests] = await Promise.all([
+    LeaveRequestModel.countDocuments(query),
+    LeaveRequestModel.find(query)
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 })
+      .populate('employeeId', 'firstname lastname employeeCode'),
+  ]);
+
+  const data = leaveRequests.map((item) => ({
+    leaveRequest: {
+      id: item.id,
+      startDate: item.startDate,
+      endDate: item.endDate,
+      reason: item.reason,
+      status: item.status,
+      note: item.note,
+    },
+    employee: {
+      id: item.employeeId.id,
+      employeeCode: item.employeeId.employeeCode,
+      firstname: item.employeeId.firstname,
+      lastname: item.employeeId.lastname,
+    },
+    updatedAt: item.updatedAt,
+  }));
+
+  return {
+    data,
+    pagination: {
+      totalItems: total,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      limit,
+    },
+  };
+};
+
+const getLeaveRequestDetailService = async (id) => {
+  if (!isValidObjectId(id)) {
+    const err = new Error('Invalid leave request ID format');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const leaveRequest = await LeaveRequestModel.findById(id);
+  const employee = await EmployeeModel.findById(leaveRequest.employeeId);
+
+  const data = {
+    leaveRequest: {
+      id: leaveRequest.id,
+      startDate: leaveRequest.startDate,
+      endDate: leaveRequest.endDate,
+      reason: leaveRequest.status,
+      note: leaveRequest.note,
+    },
+    employee: {
+      id: employee.id,
+      employeeCode: employee.employeeCode,
+      firstname: employee.firstname,
+      lastname: employee.lastname,
+    },
+    updatedAt: leaveRequest.updatedAt,
+  };
+
+  return { data };
+};
+
+const deleteLeaveRequestService = async (id) => {
+  if (!isValidObjectId(id)) {
+    const err = new Error('Invalid leave request ID format');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const leaveRequest = await LeaveRequestModel.findById(id);
+
+  if (leaveRequest.status === LeaveRequestStatus.PENDING) {
+    await LeaveRequestModel.findByIdAndDelete(id);
+  } else {
+    const err = new Error('Đơn xin nghỉ chỉ được xóa khi ở trạng thái chưa được duyệt');
+    err.statusCode = 403;
+    throw err;
+  }
+};
+
+module.exports = {
+  createLeaveRequestService,
+  approveLeaveRequestService,
+  getAllLeaveRequestsService,
+  getLeaveRequestDetailService,
+  deleteLeaveRequestService,
+};
