@@ -14,22 +14,21 @@ const checkInService = async (checkInData) => {
   }
 
   const today = new Date();
-
-  //Ngày giờ bắt đầu 0:00:00:000
-  const startOfDay = new Date(today);
-  startOfDay.setHours(0, 0, 0, 0);
-
-  //Ngày giờ sẽ kết thúc ở 23:59:59:999
-  const endOfDay = new Date(today);
-  endOfDay.setHours(23, 59, 59, 999);
+  today.setHours(0, 0, 0, 0);
 
   let attendance = await AttendanceModel.findOne({
     employeeId: employeeId,
-    date: { $gte: startOfDay, $lte: endOfDay }, // Chỉ lấy thời gian trong khoảng bắt đầu và kết thúc
+    date: today, // record từ cron job
   });
 
+  if (!attendance) {
+    const err = new Error('Bản ghi điểm danh chưa được khởi tạo cho ngày hôm nay');
+    err.statusCode = 500;
+    throw err;
+  }
+
   // Một ngày chỉ được phép check-in 1 lần
-  if (attendance) {
+  if (attendance.checkIn) {
     const err = new Error('Bạn đã check-in hôm nay');
     err.statusCode = 409;
     throw err;
@@ -45,13 +44,8 @@ const checkInService = async (checkInData) => {
     status = AttendanceStatus.LATE;
   }
 
-  attendance = new AttendanceModel({
-    employeeId,
-    date: now,
-    checkIn: now,
-    status: status,
-  });
-
+  attendance.checkIn = now;
+  attendance.status = status;
   await attendance.save();
 
   const data = {
@@ -74,21 +68,28 @@ const checkOutService = async (checkOutData) => {
   }
 
   const today = new Date();
-
-  const startOfDay = new Date(today);
-  startOfDay.setHours(0, 0, 0, 0);
-
-  const endOfDay = new Date(today);
-  endOfDay.setHours(23, 59, 59, 999);
+  today.setHours(0, 0, 0, 0);
 
   let attendance = await AttendanceModel.findOne({
     employeeId: employeeId,
-    date: { $gte: startOfDay, $lte: endOfDay },
+    date: today,
   });
 
   if (!attendance) {
-    const err = new Error('No check-in record found');
+    const err = new Error('Bản ghi điểm danh chưa được khởi tạo cho ngày hôm nay');
+    err.statusCode = 500;
+    throw err;
+  }
+
+  if (!attendance.checkIn) {
+    const err = new Error('Cannot check-out without check-in');
     err.statusCode = 400;
+    throw err;
+  }
+
+  if (attendance.checkOut) {
+    const err = new Error('Bạn đã check-out hôm nay');
+    err.statusCode = 409;
     throw err;
   }
 

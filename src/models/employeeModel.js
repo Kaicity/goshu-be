@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-const UserStatus = require('../enums/userStatus');
 const EmployeeGender = require('../enums/employeeGender');
+const EmployeeStatus = require('../enums/employeeStatus');
 const EmployeeType = require('../enums/employeeTypes');
 const MaritalStatus = require('../enums/maritalStatus');
 
@@ -74,7 +74,8 @@ const EmployeeSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: [UserStatus.ACTIVE, UserStatus.INACTIVE, UserStatus.SUSPENDED, UserStatus.PENDING],
+    enum: [EmployeeStatus.ACTIVE, EmployeeStatus.TERMINATED, EmployeeStatus.PROBATION, EmployeeStatus.LEAVE],
+    default: EmployeeStatus.PROBATION,
   },
   marital: {
     type: String,
