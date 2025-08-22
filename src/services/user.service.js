@@ -8,7 +8,6 @@ const { verificationData, forgotPasswordData } = require('../constants/mailerThe
 const { getIO } = require('../configs/socket');
 const UserRoles = require('../enums/userRoles');
 const handleSendEmailService = require('../services/mailer.service');
-const { getCurrentTime } = require('../utils/timeZone');
 
 const createAccountService = async (createData) => {
   const { email, password, role, status } = createData;
@@ -238,7 +237,7 @@ const updateUserService = async (id, updateData) => {
   if (status) user.status = status;
   if (password) user.password = await hashPassword(password);
 
-  user.updatedAt = getCurrentTime();
+  user.updatedAt = new Date();
 
   const updatedUser = await user.save();
 

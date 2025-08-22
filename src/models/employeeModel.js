@@ -3,7 +3,6 @@ const UserStatus = require('../enums/userStatus');
 const EmployeeGender = require('../enums/employeeGender');
 const EmployeeType = require('../enums/employeeTypes');
 const MaritalStatus = require('../enums/maritalStatus');
-const { getCurrentTime } = require('../utils/timeZone');
 
 const EmployeeSchema = new mongoose.Schema({
   firstname: {
@@ -86,11 +85,11 @@ const EmployeeSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: getCurrentTime(),
+    default: Date.now,
   },
   updatedAt: {
     type: Date,
-    default: getCurrentTime(),
+    default: Date.now,
   },
 });
 

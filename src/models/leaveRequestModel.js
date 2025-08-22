@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const LeaveRequestStatus = require('../enums/leaveRequestStatus');
-const { getCurrentTime } = require('../utils/timeZone');
 
 const LeaveRequestSchema = new mongoose.Schema({
   employeeId: { type: mongoose.Schema.Types.ObjectId, ref: 'employees', required: true },
@@ -14,7 +13,7 @@ const LeaveRequestSchema = new mongoose.Schema({
   },
   approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'employees' },
   note: { type: String },
-  createdAt: { type: Date, default: getCurrentTime() },
+  createdAt: { type: Date, default: Date.now },
 });
 
 const LeaveRequestModel = mongoose.model('leave_requests', LeaveRequestSchema);

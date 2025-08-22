@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const { getCurrentTime } = require('../utils/timeZone');
 
 const DepartmentSchema = new mongoose.Schema({
   name: {
@@ -11,11 +10,11 @@ const DepartmentSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: getCurrentTime(),
+    default: Date.now,
   },
   updatedAt: {
     type: Date,
-    default: getCurrentTime(),
+    default: Date.now,
   },
 });
 

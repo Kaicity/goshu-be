@@ -2,7 +2,6 @@ const { isValidObjectId } = require('mongoose');
 const LeaveRequestStatus = require('../enums/leaveRequestStatus');
 const EmployeeModel = require('../models/employeeModel');
 const LeaveRequestModel = require('../models/leaveRequestModel');
-const { getCurrentTime } = require('../utils/timeZone');
 
 const createLeaveRequestService = async (leaveRequestData) => {
   const { employeeId, startDate, endDate } = leaveRequestData;
@@ -21,7 +20,7 @@ const createLeaveRequestService = async (leaveRequestData) => {
     throw err;
   }
 
-  const today = getCurrentTime();
+  const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   const start = new Date(startDate);

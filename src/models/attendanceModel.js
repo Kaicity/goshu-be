@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const AttendanceStatus = require('../enums/attendanceStatus');
-const { getCurrentTime } = require('../utils/timeZone');
 
 const AttendanceSchema = new mongoose.Schema({
   employeeId: {
@@ -22,8 +21,8 @@ const AttendanceSchema = new mongoose.Schema({
     type: String,
     enum: [AttendanceStatus.PRESENT, AttendanceStatus.LATE, AttendanceStatus.ONLEAVE],
   },
-  createdAt: { type: Date, default: getCurrentTime() },
-  updatedAt: { type: Date, default: getCurrentTime() },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
 });
 
 const AttendanceModel = mongoose.model('attendances', AttendanceSchema);

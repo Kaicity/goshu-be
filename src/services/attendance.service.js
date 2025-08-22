@@ -1,6 +1,5 @@
 const AttendanceStatus = require('../enums/attendanceStatus');
 const AttendanceModel = require('../models/attendanceModel');
-const { getCurrentTime } = require('../utils/timeZone');
 const EmployeeModel = require('../models/employeeModel');
 
 const checkInService = async (checkInData) => {
@@ -14,7 +13,7 @@ const checkInService = async (checkInData) => {
     throw err;
   }
 
-  const today = getCurrentTime();
+  const today = new Date();
 
   //Ngày giờ bắt đầu 0:00:00:000
   const startOfDay = new Date(today);
@@ -37,7 +36,7 @@ const checkInService = async (checkInData) => {
   }
 
   // Set trạng thái check-in trong ngày
-  const now = getCurrentTime();
+  const now = new Date();
   const workStart = new Date(today);
   workStart.setHours(8, 0, 0, 0);
 
@@ -74,7 +73,7 @@ const checkOutService = async (checkOutData) => {
     throw err;
   }
 
-  const today = getCurrentTime();
+  const today = new Date();
 
   const startOfDay = new Date(today);
   startOfDay.setHours(0, 0, 0, 0);
@@ -93,7 +92,7 @@ const checkOutService = async (checkOutData) => {
     throw err;
   }
 
-  attendance.checkOut = getCurrentTime();
+  attendance.checkOut = new Date();
   await attendance.save();
 
   const data = {

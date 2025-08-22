@@ -1,7 +1,6 @@
 const { isValidObjectId } = require('mongoose');
 const EmployeeModel = require('../models/employeeModel');
 const DepartmentModel = require('../models/departmentModel');
-const { getCurrentTime } = require('../utils/timeZone');
 const UserRoles = require('../enums/userRoles');
 const UserModel = require('../models/userModel');
 
@@ -107,7 +106,7 @@ const updateEmployeeService = async (id, updateData) => {
 
   // Mapping dữ liệu cũ sang dữ liệu mới
   Object.assign(employee, updateData);
-  employee.updatedAt = getCurrentTime();
+  employee.updatedAt = new Date();
   await employee.save();
 
   // populate lại departmentId để có name nè

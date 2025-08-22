@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const { getCurrentTime } = require('../utils/timeZone');
 const PayrollStatus = require('../enums/payrollStatus');
 
 const PayrollSchema = new mongoose.Schema({
@@ -16,8 +15,8 @@ const PayrollSchema = new mongoose.Schema({
     enum: [PayrollStatus.OPEN, PayrollStatus.CALCULATED, PayrollStatus.CLOSED],
     default: PayrollStatus.OPEN,
   },
-  createdAt: { type: Date, default: getCurrentTime() },
-  updatedAt: { type: Date, default: getCurrentTime() },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
 });
 
 const PayrollModel = mongoose.model('payrolls', PayrollSchema);
