@@ -3,38 +3,57 @@ const AttendanceModel = require('../models/attendanceModel');
 const EmployeeModel = require('../models/employeeModel');
 const AttendanceStatus = require('../enums/attendanceStatus');
 const EmployeeStatus = require('../enums/employeeStatus');
+const { getCurrentTimeVN } = require('../utils/timeZone');
 
 const createDailyAttendance = async () => {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const nowVN = getCurrentTimeVN();
+
+    // Lấy chỉ phần ngày (00:00:00) để tránh so sánh giờ phút giây
+    const startOfDay = new Date(nowVN);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(nowVN);
+    endOfDay.setHours(23, 59, 59, 999);
 
     // Check đã tạo cho ngày hôm nay chưa
-    const exist = await AttendanceModel.findOne({ date: today });
+    const exist = await AttendanceModel.findOne({
+      date: { $gte: startOfDay, $lte: endOfDay },
+    });
+
     if (exist) {
       console.log('Attendance records already created for today');
       return;
     }
 
+    // Lấy tất cả nhân viên chưa nghỉ việc
     const employees = await EmployeeModel.find({
-      status: { $ne: EmployeeStatus.TERMINATED }, // Lấy tất cả nhân viên có status KHÁC TERMINATED
+      status: { $ne: EmployeeStatus.TERMINATED },
     });
 
     const attendanceList = employees.map((emp) => ({
       employeeId: emp._id,
-      date: today,
-      status: AttendanceStatus.ABSENT, // mặc định là vắng
+      date: startOfDay, // set date = 00:00:00 VN
+      status: AttendanceStatus.ABSENT,
     }));
 
     await AttendanceModel.insertMany(attendanceList);
-    console.log(`Attendance created for ${employees.length} employees`);
+    console.log(`Attendance created for ${employees.length} employees, date: ${startOfDay.toISOString()}`);
   } catch (error) {
     console.error('Error creating daily attendance:', error.message);
   }
 };
 
-// Lên lịch chạy mỗi ngày lúc 00:05
-cron.schedule('17 17 * * *', () => {
-  console.log('⏰ Running daily attendance job...');
-  createDailyAttendance();
-});
+// Cron chạy mỗi ngày 00:05 giờ VN
+cron.schedule(
+  '5 0 * * *',
+  () => {
+    console.log('⏰ Running daily attendance job...');
+    createDailyAttendance();
+  },
+  {
+    timezone: 'Asia/Ho_Chi_Minh',
+  },
+);
+
+// createDailyAttendance();

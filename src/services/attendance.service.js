@@ -46,6 +46,7 @@ const checkInService = async (checkInData) => {
 
   attendance.checkIn = now;
   attendance.status = status;
+  attendance.updatedAt = new Date();
   await attendance.save();
 
   const data = {
