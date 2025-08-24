@@ -14,11 +14,16 @@ const checkInService = async (checkInData) => {
   }
 
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
+
+  const startOfDay = new Date(today);
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const endOfDay = new Date(today);
+  endOfDay.setHours(23, 59, 59, 999);
 
   let attendance = await AttendanceModel.findOne({
     employeeId: employeeId,
-    date: today, // record từ cron job
+    date: { $gte: startOfDay, $lte: endOfDay },
   });
 
   if (!attendance) {
@@ -69,11 +74,16 @@ const checkOutService = async (checkOutData) => {
   }
 
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
+
+  const startOfDay = new Date(today);
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const endOfDay = new Date(today);
+  endOfDay.setHours(23, 59, 59, 999);
 
   let attendance = await AttendanceModel.findOne({
     employeeId: employeeId,
-    date: today,
+    date: { $gte: startOfDay, $lte: endOfDay },
   });
 
   if (!attendance) {
