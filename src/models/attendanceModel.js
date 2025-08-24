@@ -21,6 +21,10 @@ const AttendanceSchema = new mongoose.Schema({
     type: String,
     enum: [AttendanceStatus.PRESENT, AttendanceStatus.LATE, AttendanceStatus.ONLEAVE, AttendanceStatus.ABSENT],
   },
+  workingHour: {
+    type: Number,
+    default: 0,
+  },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

@@ -105,6 +105,14 @@ const checkOutService = async (checkOutData) => {
   }
 
   attendance.checkOut = new Date();
+
+  // Tính working hour
+  const diffMs = attendance.checkOut - attendance.checkIn;
+  const diffHours = diffMs / (1000 * 60 * 60);
+  const workingHour = Math.round(diffHours * 100) / 100;
+
+  attendance.workingHour = workingHour;
+
   await attendance.save();
 
   const data = {
@@ -160,6 +168,7 @@ const getAllAttendancesService = async ({ page, limit, skip, search }, { date, s
       checkIn: item.checkIn,
       checkOut: item.checkOut,
       status: item.status,
+      workingHour: item.workingHour,
     },
     employee: {
       id: item.employeeId.id,
