@@ -1,6 +1,9 @@
 const AttendanceStatus = require('../enums/attendanceStatus');
 const AttendanceModel = require('../models/attendanceModel');
 const EmployeeModel = require('../models/employeeModel');
+const { formatInTimeZone } = require('date-fns-tz');
+
+const timeZone = 'Asia/Ho_Chi_Minh';
 
 const checkInService = async (checkInData) => {
   const { employeeId } = checkInData;
@@ -13,7 +16,8 @@ const checkInService = async (checkInData) => {
     throw err;
   }
 
-  const today = new Date();
+  //Ngày giờ thời gian hiện tại hôm nay
+  const today = formatInTimeZone(new Date(), timeZone, 'yyyy-MM-dd HH:mm:ss');
 
   const startOfDay = new Date(today);
   startOfDay.setHours(0, 0, 0, 0);
@@ -39,8 +43,8 @@ const checkInService = async (checkInData) => {
     throw err;
   }
 
-  // Set trạng thái check-in trong ngày
-  const now = new Date();
+  // Set trạng thái check-in trong ngày giờ làm việc bắt đầu luôn trước 8:00 PM sáng
+  const now = new Date(today);
   const workStart = new Date(today);
   workStart.setHours(8, 0, 0, 0);
 
@@ -73,7 +77,8 @@ const checkOutService = async (checkOutData) => {
     throw err;
   }
 
-  const today = new Date();
+  //Ngày giờ thời gian hiện tại hôm nay
+  const today = formatInTimeZone(new Date(), timeZone, 'yyyy-MM-dd HH:mm:ss');
 
   const startOfDay = new Date(today);
   startOfDay.setHours(0, 0, 0, 0);
@@ -104,7 +109,9 @@ const checkOutService = async (checkOutData) => {
     throw err;
   }
 
-  attendance.checkOut = new Date();
+  const now = new Date(today);
+
+  attendance.checkOut = now;
 
   // Tính working hour
   const diffMs = attendance.checkOut - attendance.checkIn;
@@ -140,10 +147,11 @@ const getAllAttendancesService = async ({ page, limit, skip, search }, { date, s
   }
 
   if (date) {
-    const startOfDay = new Date(date);
+    const dateNow = formatInTimeZone(new Date(date), timeZone, 'yyyy-MM-dd HH:mm:ss');
+    const startOfDay = new Date(dateNow);
     startOfDay.setHours(0, 0, 0, 0);
 
-    const endOfDay = new Date(date);
+    const endOfDay = new Date(dateNow);
     endOfDay.setHours(23, 59, 59, 999);
 
     query.date = { $gte: startOfDay, $lte: endOfDay };
