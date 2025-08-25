@@ -147,14 +147,7 @@ const getAllAttendancesService = async ({ page, limit, skip, search }, { date, s
   }
 
   if (date) {
-    const dateNow = formatInTimeZone(new Date(date), timeZone, 'yyyy-MM-dd HH:mm:ss');
-    const startOfDay = new Date(dateNow);
-    startOfDay.setHours(0, 0, 0, 0);
-
-    const endOfDay = new Date(dateNow);
-    endOfDay.setHours(23, 59, 59, 999);
-
-    query.date = { $gte: startOfDay, $lte: endOfDay };
+    query.date = new Date(date);
   }
 
   if (status) query.status = status;
