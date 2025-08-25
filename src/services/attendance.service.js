@@ -166,7 +166,7 @@ const getAllAttendancesService = async ({ page, limit, skip, search }, { date, s
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 })
-      .populate('employeeId', 'firstname lastname employeeCode'),
+      .populate('employeeId', 'firstname lastname employeeCode designation type avatarUrl'),
   ]);
 
   const data = attendances.map((item) => ({
@@ -183,6 +183,9 @@ const getAllAttendancesService = async ({ page, limit, skip, search }, { date, s
       employeeCode: item.employeeId.employeeCode,
       firstname: item.employeeId.firstname,
       lastname: item.employeeId.lastname,
+      designation: item.employeeId.designation,
+      type: item.employeeId.type,
+      avatarUrl: item.employeeId.avatarUrl,
     },
     updatedAt: item.updatedAt,
   }));
