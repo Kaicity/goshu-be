@@ -3,17 +3,18 @@ const AttendanceModel = require('../models/attendanceModel');
 const EmployeeModel = require('../models/employeeModel');
 const AttendanceStatus = require('../enums/attendanceStatus');
 const EmployeeStatus = require('../enums/employeeStatus');
-const { getCurrentTimeVN } = require('../utils/timeZone');
+const { formatInTimeZone } = require('date-fns-tz');
+
+const timeZone = 'Asia/Ho_Chi_Minh';
 
 const createDailyAttendance = async () => {
   try {
-    const nowVN = getCurrentTimeVN();
+    const todayVN = formatInTimeZone(new Date(), timeZone, 'yyyy-MM-dd HH:mm:ss');
 
-    // Lấy chỉ phần ngày (00:00:00) để tránh so sánh giờ phút giây
-    const startOfDay = new Date(nowVN);
+    const startOfDay = new Date(todayVN);
     startOfDay.setHours(0, 0, 0, 0);
 
-    const endOfDay = new Date(nowVN);
+    const endOfDay = new Date(todayVN);
     endOfDay.setHours(23, 59, 59, 999);
 
     // Check đã tạo cho ngày hôm nay chưa
@@ -38,7 +39,9 @@ const createDailyAttendance = async () => {
     }));
 
     await AttendanceModel.insertMany(attendanceList);
-    console.log(`Attendance created for ${employees.length} employees, date: ${startOfDay.toISOString()}`);
+    console.log(
+      `Attendance created for ${employees.length} employees, date: ${startOfDay.toISOString()} + thêm 7 tiếng ra giờ việt đó hen`,
+    );
   } catch (error) {
     console.error('Error creating daily attendance:', error.message);
   }
@@ -52,8 +55,8 @@ cron.schedule(
     createDailyAttendance();
   },
   {
-    timezone: 'Asia/Ho_Chi_Minh',
+    timezone: timeZone,
   },
 );
 
-// createDailyAttendance();
+createDailyAttendance();
