@@ -13,7 +13,7 @@ const leaveRequestRouter = new Router();
 
 leaveRequestRouter.post('/createLeaveRequest', createLeaveRequest);
 leaveRequestRouter.put('/approveLeaveRequest/:id', authorizeRole(UserRoles.ADMIN, UserRoles.HR), approveLeaveRequest);
-leaveRequestRouter.get('/getAll', authorizeRole(UserRoles.ADMIN, UserRoles.HR), getAllLeaveRequests);
+leaveRequestRouter.get('/getAll', authorizeRole(UserRoles.EMPLOYEE, UserRoles.HR), getAllLeaveRequests);
 leaveRequestRouter.get('/getLeaveRequestDetail/:id', authorizeRole(UserRoles.ADMIN, UserRoles.HR), getLeaveRequestDetail);
 leaveRequestRouter.delete('/deleteLeaveRequest/:id', authorizeRole(UserRoles.ADMIN, UserRoles.HR), deleteLeaveRequest);
 
