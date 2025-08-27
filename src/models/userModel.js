@@ -18,7 +18,6 @@ const UserSchema = new mongoose.Schema({
   },
   employeeId: {
     type: String,
-    required: true,
   },
   status: {
     type: String,

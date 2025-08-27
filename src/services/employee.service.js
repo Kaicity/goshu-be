@@ -19,15 +19,6 @@ const getAllEmployeesService = async ({ page, limit, skip, search }, { departmen
   if (department) query.departmentId = department;
   if (type) query.type = type;
 
-  // Lấy danh sách employeeId có role ADMIN
-  const adminUsers = await UserModel.find({ role: UserRoles.ADMIN }).select('employeeId');
-  const adminEmployeeIds = adminUsers.map((u) => u.employeeId);
-
-  // Loại bỏ employeeId là ADMin
-  if (adminEmployeeIds.length > 0) {
-    query._id = { $nin: adminEmployeeIds };
-  }
-
   const [total, employees] = await Promise.all([
     EmployeeModel.countDocuments(query),
     EmployeeModel.find(query).skip(skip).limit(limit).sort({ createdAt: -1 }).populate('departmentId', 'name'),

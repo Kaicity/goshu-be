@@ -2,6 +2,7 @@ const AttendanceStatus = require('../enums/attendanceStatus');
 const AttendanceModel = require('../models/attendanceModel');
 const EmployeeModel = require('../models/employeeModel');
 const { formatInTimeZone } = require('date-fns-tz');
+const { getIO } = require('../configs/socket');
 
 const timeZone = 'Asia/Ho_Chi_Minh';
 
@@ -56,7 +57,18 @@ const checkInService = async (checkInData) => {
   attendance.checkIn = now;
   attendance.status = status;
   attendance.updatedAt = new Date();
+
   await attendance.save();
+
+  // Gửi socket checkin
+  const io = getIO();
+  io.emit('attendance:update', {
+    type: 'Check-in',
+    employeeCode: employee.employeeCode,
+    fullname: employee.lastname + '' + employee.firstname,
+    checkIn: attendance.checkIn,
+    status: attendance.status,
+  });
 
   const data = {
     employeeId: attendance.employeeId,
@@ -121,6 +133,16 @@ const checkOutService = async (checkOutData) => {
   attendance.workingHour = workingHour;
 
   await attendance.save();
+
+  // Gửi socket checkout
+  const io = getIO();
+  io.emit('attendance:update', {
+    type: 'Check-out',
+    employeeCode: employee.employeeCode,
+    fullname: employee.lastname + '' + employee.firstname,
+    checkOut: attendance.checkOut,
+    workingHour: attendance.workingHour,
+  });
 
   const data = {
     employeeId: attendance.employeeId,

@@ -23,32 +23,36 @@ const createAccountService = async (createData) => {
   // Tạo mã nhân viên
   const employeeCode = generateRandomCode();
 
-  // Khởi tạo nhân viên
-  const newEmployee = new EmployeeModel({
-    email,
-    employeeCode,
-  });
+  //Nếu là admin không cần tạo nhân viên ở đây
+  let newEmployee;
+  if (role !== UserRoles.ADMIN) {
+    // Khởi tạo nhân viên
+    newEmployee = new EmployeeModel({
+      email: email,
+      employeeCode: employeeCode,
+    });
 
+    await newEmployee.save();
+  }
   // Mã hoá mật khẩu và khởi tạo tài khoản
   const hashedPassword = await hashPassword(password);
 
   const newUser = new UserModel({
     email,
     password: hashedPassword,
-    employeeId: newEmployee._id.toString(),
+    employeeId: newEmployee ? newEmployee.id : undefined,
     role,
     status: status || UserStatus.PENDING,
   });
 
   // Lưu vào DB
   await newUser.save();
-  await newEmployee.save();
 
   // Đẩy sự kiện socket
   const io = getIO();
   io.emit('user:added', { email: newUser.email });
 
-  const data = { email: newUser.email, employeeCode: newEmployee.employeeCode };
+  const data = { email: newUser.email, employeeCode: newEmployee ? newEmployee.employeeCode : undefined };
 
   return { data };
 };
@@ -238,6 +242,10 @@ const updateUserService = async (id, updateData) => {
   if (password) user.password = await hashPassword(password);
 
   user.updatedAt = new Date();
+
+  // Đẩy sự kiện socket
+  const io = getIO();
+  status && io.emit('user:update-status', { email: user.email, status: status });
 
   const updatedUser = await user.save();
 
