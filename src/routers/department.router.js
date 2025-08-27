@@ -1,4 +1,4 @@
-const Router = require('express');
+const express = require('express');
 const {
   createDepartment,
   getAllDepartments,
@@ -7,7 +7,7 @@ const {
   getDepartment,
 } = require('../controllers/department.controller');
 
-const departmentRouter = Router();
+const departmentRouter = express.Router();
 
 departmentRouter.post('/createDepartment', createDepartment);
 departmentRouter.get('/getAll', getAllDepartments);

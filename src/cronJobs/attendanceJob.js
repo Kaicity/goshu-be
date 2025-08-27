@@ -49,7 +49,7 @@ const createDailyAttendance = async () => {
 
 // Cron chạy mỗi ngày 00:05 giờ VN
 cron.schedule(
-  '5 0 * * *',
+  '0 7 * * *',
   () => {
     console.log('⏰ Running daily attendance job...');
     createDailyAttendance();

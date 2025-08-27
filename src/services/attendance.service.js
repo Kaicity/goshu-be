@@ -32,7 +32,7 @@ const checkInService = async (checkInData) => {
   });
 
   if (!attendance) {
-    const err = new Error('Bản ghi điểm danh chưa được khởi tạo cho ngày hôm nay');
+    const err = new Error('Vui lòng thực hiện check-in sau 7:00 Sáng');
     err.statusCode = 500;
     throw err;
   }
@@ -104,7 +104,7 @@ const checkOutService = async (checkOutData) => {
   });
 
   if (!attendance) {
-    const err = new Error('Bản ghi điểm danh chưa được khởi tạo cho ngày hôm nay');
+    const err = new Error('Chưa có dữ liệu Check-in hoặc Check-out được tạo');
     err.statusCode = 500;
     throw err;
   }

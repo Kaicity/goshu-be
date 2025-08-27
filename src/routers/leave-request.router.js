@@ -1,4 +1,4 @@
-const Router = require('express');
+const express = require('express');
 const authorizeRole = require('../middlewares/authorizeRole');
 const UserRoles = require('../enums/userRoles');
 const {
@@ -9,12 +9,12 @@ const {
   deleteLeaveRequest,
 } = require('../controllers/leave-request.controller');
 
-const leaveRequestRouter = new Router();
+const leaveRequestRouter = express.Router();
 
 leaveRequestRouter.post('/createLeaveRequest', createLeaveRequest);
-leaveRequestRouter.put('/approveLeaveRequest/:id', authorizeRole(UserRoles.ADMIN, UserRoles.HR), approveLeaveRequest);
+leaveRequestRouter.put('/approveLeaveRequest/:id', authorizeRole(UserRoles.HR), approveLeaveRequest);
 leaveRequestRouter.get('/getAll', authorizeRole(UserRoles.EMPLOYEE, UserRoles.HR), getAllLeaveRequests);
-leaveRequestRouter.get('/getLeaveRequestDetail/:id', authorizeRole(UserRoles.ADMIN, UserRoles.HR), getLeaveRequestDetail);
-leaveRequestRouter.delete('/deleteLeaveRequest/:id', authorizeRole(UserRoles.ADMIN, UserRoles.HR), deleteLeaveRequest);
+leaveRequestRouter.get('/getLeaveRequestDetail/:id', authorizeRole(UserRoles.HR), getLeaveRequestDetail);
+leaveRequestRouter.delete('/deleteLeaveRequest/:id', authorizeRole(UserRoles.HR), deleteLeaveRequest);
 
 module.exports = leaveRequestRouter;
