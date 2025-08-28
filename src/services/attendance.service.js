@@ -65,7 +65,7 @@ const checkInService = async (checkInData) => {
   io.emit('attendance:update', {
     type: 'Check-in',
     employeeCode: employee.employeeCode,
-    fullname: employee.lastname + '' + employee.firstname,
+    fullname: `${employee.lastname} ${employee.firstname}`,
     checkIn: attendance.checkIn,
     status: attendance.status,
   });
@@ -139,7 +139,7 @@ const checkOutService = async (checkOutData) => {
   io.emit('attendance:update', {
     type: 'Check-out',
     employeeCode: employee.employeeCode,
-    fullname: employee.lastname + '' + employee.firstname,
+    fullname: `${employee.lastname} ${employee.firstname}`,
     checkOut: attendance.checkOut,
     workingHour: attendance.workingHour,
   });
