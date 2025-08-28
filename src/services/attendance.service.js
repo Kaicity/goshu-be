@@ -32,7 +32,7 @@ const checkInService = async (checkInData) => {
   });
 
   if (!attendance) {
-    const err = new Error('Vui lòng thực hiện check-in sau 7:00 Sáng');
+    const err = new Error('Check-in chưa được khởi tạo hôm nay, thử lại sau!');
     err.statusCode = 500;
     throw err;
   }
