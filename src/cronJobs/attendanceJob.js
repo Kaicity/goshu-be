@@ -9,7 +9,7 @@ const timeZone = 'Asia/Ho_Chi_Minh';
 
 const createDailyAttendance = async () => {
   try {
-    const todayVN = formatInTimeZone(new Date(), timeZone, 'yyyy-MM-dd HH:mm:ss');
+    const todayVN = formatInTimeZone(new Date(), timeZone, 'yyyy-MM-dd');
 
     const startOfDay = new Date(todayVN);
     startOfDay.setHours(0, 0, 0, 0);
