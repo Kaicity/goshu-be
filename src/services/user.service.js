@@ -60,7 +60,6 @@ const createAccountService = async (createData) => {
 const verificationService = async ({ email }) => {
   //Check existing email account
   const userExisting = await UserModel.findOne({ email });
-
   if (userExisting) {
     const err = new Error('Tài khoản Email đã được đăng ký');
     err.statusCode = 409;
@@ -84,7 +83,6 @@ const forgotPasswordService = async ({ email }) => {
   const sendData = forgotPasswordData(resetCode, email);
 
   const user = await UserModel.findOne({ email });
-
   if (!user) {
     const err = new Error('Not found user account');
     err.statusCode = 404;
@@ -102,7 +100,6 @@ const changePasswordService = async (changePasswordData) => {
   const { email, password } = changePasswordData;
 
   const user = await UserModel.findOne({ email });
-
   if (!user) {
     const err = new Error('Not found user account');
     err.statusCode = 403;

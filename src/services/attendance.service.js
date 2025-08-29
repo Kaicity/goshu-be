@@ -10,7 +10,6 @@ const checkInService = async (checkInData) => {
   const { employeeId } = checkInData;
 
   const employee = await EmployeeModel.findById(employeeId);
-
   if (!employee) {
     const err = new Error('Employee not found in system');
     err.statusCode = 404;
@@ -82,7 +81,6 @@ const checkOutService = async (checkOutData) => {
   const { employeeId } = checkOutData;
 
   const employee = await EmployeeModel.findById(employeeId);
-
   if (!employee) {
     const err = new Error('Employee not found in system');
     err.statusCode = 404;
