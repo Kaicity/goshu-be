@@ -168,6 +168,7 @@ const getAllLeaveRequestsService = async ({ page, limit, skip, search }, { statu
       lastname: item.employeeId.lastname,
     },
     updatedAt: item.updatedAt,
+    createdAt: item.createdAt,
   }));
 
   return {
