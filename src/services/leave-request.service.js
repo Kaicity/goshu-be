@@ -62,7 +62,7 @@ const createLeaveRequestService = async (leaveRequestData) => {
       $gte: new Date(year, 0, 1), // từ 01/01
       $lte: new Date(year, 11, 31), // đến 31/12
     },
-    status: { $ne: LeaveRequestStatus.REJECTED }, // đơn phải được reject
+    status: { $ne: LeaveRequestStatus.REJECTED }, // loại bỏ những đơn bị reject
   });
 
   const usedDays = leaveRequests.reduce((total, req) => {
