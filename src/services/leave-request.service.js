@@ -91,6 +91,7 @@ const createLeaveRequestService = async (leaveRequestData) => {
     reason: leaveRequest.reason,
     status: leaveRequest.status,
     note: leaveRequest.note,
+    createdAt: leaveRequest.createdAt,
   };
 
   return { data };
