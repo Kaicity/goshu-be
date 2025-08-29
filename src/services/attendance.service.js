@@ -202,7 +202,7 @@ const getAllAttendancesService = async ({ page, limit, skip, search }, { date, s
       type: item.employeeId.type,
       avatarUrl: item.employeeId.avatarUrl,
     },
-    updatedAt: item.updatedAt,
+    createdAt: item.createdAt,
   }));
 
   return {
