@@ -158,6 +158,7 @@ const getAllLeaveRequestsService = async ({ page, limit, skip, search }, { statu
       employeeCode: item.employeeId.employeeCode,
       firstname: item.employeeId.firstname,
       lastname: item.employeeId.lastname,
+      avatarUrl: item.employeeId.avatarUrl,
     },
     updatedAt: item.updatedAt,
     createdAt: item.createdAt,
@@ -197,6 +198,7 @@ const getLeaveRequestDetailService = async (id) => {
       employeeCode: employee.employeeCode,
       firstname: employee.firstname,
       lastname: employee.lastname,
+      avatarUrl: employee.avatarUrl,
     },
     updatedAt: leaveRequest.updatedAt,
   };
