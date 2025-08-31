@@ -141,7 +141,7 @@ const getAllLeaveRequestsService = async ({ page, limit, skip, search }, { statu
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 })
-      .populate('employeeId', 'firstname lastname employeeCode'),
+      .populate('employeeId', 'firstname lastname employeeCode avatarUrl'),
   ]);
 
   const data = leaveRequests.map((item) => ({
