@@ -14,7 +14,7 @@ const leaveRequestRouter = express.Router();
 leaveRequestRouter.post('/createLeaveRequest', createLeaveRequest);
 leaveRequestRouter.put('/approveLeaveRequest/:id', authorizeRole(UserRoles.HR), approveLeaveRequest);
 leaveRequestRouter.get('/getAll', authorizeRole(UserRoles.EMPLOYEE, UserRoles.HR), getAllLeaveRequests);
-leaveRequestRouter.get('/getLeaveRequestDetail/:id', authorizeRole(UserRoles.HR), getLeaveRequestDetail);
+leaveRequestRouter.get('/getLeaveRequest/:id', authorizeRole(UserRoles.HR), getLeaveRequestDetail);
 leaveRequestRouter.delete('/deleteLeaveRequest/:id', authorizeRole(UserRoles.HR), deleteLeaveRequest);
 
 module.exports = leaveRequestRouter;

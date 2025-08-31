@@ -6,13 +6,6 @@ const LeaveRequestModel = require('../models/leaveRequestModel');
 const createLeaveRequestService = async (leaveRequestData) => {
   const { employeeId, startDate, endDate } = leaveRequestData;
 
-  // Kiểm tra object id hợp lệ
-  if (!isValidObjectId(employeeId)) {
-    const err = new Error('Invalid employee ID format');
-    err.statusCode = 400;
-    throw err;
-  }
-
   const employee = await EmployeeModel.findById(employeeId);
   if (!employee) {
     const err = new Error('Employee not found in system');
@@ -105,7 +98,6 @@ const approveLeaveRequestService = async (id, leaveRequestData) => {
   }
 
   const leaveRequestUpdated = await LeaveRequestModel.findByIdAndUpdate(id, leaveRequestData, { new: true });
-
   if (!leaveRequestUpdated) {
     const err = new Error('Leave request not found');
     err.statusCode = 404;
