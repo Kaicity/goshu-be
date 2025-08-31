@@ -11,12 +11,16 @@ const AttendanceStatus = require('../enums/attendanceStatus');
  */
 const calculateDeductions = async (employeeId, month, year, basicSalary) => {
   const firstDay = new Date(year, month - 1, 1);
+  firstDay.setHours(0, 0, 0, 0);
   const lastDay = new Date(year, month, 0);
+  lastDay.setHours(23, 59, 59, 999);
 
   const attendances = await AttendanceModel.find({
     employeeId,
     date: { $gte: firstDay, $lte: lastDay },
   });
+
+  console.log(attendances);
 
   let lateCount = 0;
   let absentCount = 0;
@@ -26,7 +30,7 @@ const calculateDeductions = async (employeeId, month, year, basicSalary) => {
     if (att.status === AttendanceStatus.ABSENT) absentCount++;
   });
 
-  const workingDays = 22; //Ngày công không tính T7, CN
+  const workingDays = process.env.WORKING_DAY || 22; //Ngày công không tính T7, CN
   const dailySalary = basicSalary / workingDays;
 
   const deductionLate = Math.floor(lateCount / 3) * dailySalary;
@@ -90,4 +94,4 @@ const createPayrollService = async (createData) => {
   return { data };
 };
 
-module.exports = { createPayrollService };
+module.exports = { createPayrollService, calculateDeductions };
