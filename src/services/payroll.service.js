@@ -3,6 +3,7 @@ const EmployeeModel = require('../models/employeeModel');
 const AttendanceModel = require('../models/attendanceModel');
 const AttendanceStatus = require('../enums/attendanceStatus');
 const { isValidObjectId } = require('mongoose');
+const PayrollStatus = require('../enums/payrollStatus');
 
 /**
  * Tính deductions dựa trên Attendance
@@ -36,7 +37,7 @@ const calculateDeductions = async (employeeId, month, year, basicSalary) => {
 
   const deductionAbsent = absentCount * dailySalary;
 
-  return deductionLate + deductionAbsent;
+  return Number(deductionLate + deductionAbsent).toFixed(2);
 };
 
 const createPayrollService = async (createData) => {
@@ -190,4 +191,54 @@ const getPayrollService = async (id) => {
   return { data };
 };
 
-module.exports = { createPayrollService, calculateDeductions, getAllPayrollService, getPayrollService };
+const updatePayrollService = async (id, updateData) => {
+  if (!isValidObjectId(id)) {
+    const err = new Error('Invalid payroll ID format');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const payroll = await PayrollModel.findById(id);
+  if (!payroll) {
+    const err = new Error('Not found payroll');
+    err.statusCode = 404;
+    throw err;
+  }
+
+  // Nếu status = CLOSED thì không cho update
+  if (payroll.status === PayrollStatus.CLOSED) {
+    const err = new Error('Lương đã được chốt định kì, không thể chỉnh sửa');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  // cho phép update payroll những trường có thể thay đổi
+  const allowedFields = ['basicSalary', 'allowance', 'overtime', 'deductions', 'status'];
+  const safeUpdateData = Object.fromEntries(Object.entries(updateData).filter(([key]) => allowedFields.includes(key)));
+
+  Object.assign(payroll, safeUpdateData); // Mapping giá trị được update
+
+  // gọi lại calculateDeductions -> ngày nghỉ, vắng
+  payroll.deductions = await calculateDeductions(payroll.employeeId, payroll.month, payroll.year, payroll.basicSalary);
+
+  // cập nhật lại netSalary
+  payroll.netSalary = Number(payroll.basicSalary + payroll.allowance + payroll.overtime - payroll.deductions).toFixed(2);
+
+  await payroll.save();
+
+  const data = {
+    month: payroll.month,
+    year: payroll.year,
+    basicSalary: payroll.basicSalary,
+    allowance: payroll.allowance,
+    overtime: payroll.overtime,
+    deductions: payroll.deductions,
+    netSalary: payroll.netSalary,
+    status: payroll.status,
+    updatedAt: payroll.updatedAt,
+  };
+
+  return { data };
+};
+
+module.exports = { createPayrollService, calculateDeductions, getAllPayrollService, getPayrollService, updatePayrollService };
