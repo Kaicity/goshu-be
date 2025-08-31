@@ -1,6 +1,6 @@
 const asyncHandle = require('express-async-handler');
 const paginate = require('../utils/paginate');
-const { createPayrollService } = require('../services/payroll.service');
+const { createPayrollService, getAllPayrollService, getPayrollService } = require('../services/payroll.service');
 
 const createPayroll = asyncHandle(async (req, res) => {
   const result = await createPayrollService(req.body);
@@ -11,9 +11,30 @@ const createPayroll = asyncHandle(async (req, res) => {
   });
 });
 
-const getAllPayroll = asyncHandle(async (req, res) => {});
+const getAllPayroll = asyncHandle(async (req, res) => {
+  const { page, limit, skip, search } = paginate(req);
+  const { month, year, minSalary, maxSalary, status, employeeId } = req.query;
 
-const getPayroll = asyncHandle(async (req, res) => {});
+  const result = await getAllPayrollService(
+    { page, limit, skip, search },
+    { month, year, minSalary, maxSalary, status, employeeId },
+  );
+
+  res.status(200).json({
+    message: 'Get all payrolls is successfully',
+    ...result,
+  });
+});
+
+const getPayroll = asyncHandle(async (req, res) => {
+  const { id } = req.params;
+  const result = await getPayrollService(id);
+
+  res.status(200).json({
+    message: 'Get payroll is successfully',
+    ...result,
+  });
+});
 
 const updatePayroll = asyncHandle(async (req, res) => {});
 
