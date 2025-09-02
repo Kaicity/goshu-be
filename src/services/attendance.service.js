@@ -1,9 +1,11 @@
 const AttendanceStatus = require('../enums/attendanceStatus');
 const AttendanceModel = require('../models/attendanceModel');
 const EmployeeModel = require('../models/employeeModel');
+const LeaveRequestModel = require('../models/leaveRequestModel');
 const { formatInTimeZone } = require('date-fns-tz');
 const { getIO } = require('../configs/socket');
 const EmployeeStatus = require('../enums/employeeStatus');
+const LeaveRequestStatus = require('../enums/leaveRequestStatus');
 
 const timeZone = 'Asia/Ho_Chi_Minh';
 
@@ -223,6 +225,12 @@ const generateAttendanceManualForMonthService = async (year, month) => {
     status: { $ne: EmployeeStatus.TERMINATED },
   });
 
+  const leaveRequests = await LeaveRequestModel.find({
+    status: LeaveRequestStatus.APPROVED,
+    startDate: { $lte: endOfMonth }, // Tránh overlap khi qua tháng mới => bao quát tháng
+    endDate: { $gte: startOfMonth },
+  });
+
   const attendanceList = [];
 
   // Duyệt qua từng ngày trong tháng
@@ -237,23 +245,35 @@ const generateAttendanceManualForMonthService = async (year, month) => {
     endOfDay.setHours(23, 59, 59, 999);
 
     // Check nếu đã tạo attendance cho ngày này chưa
-    const exist = await AttendanceModel.findOne({
+    const existAttendance = await AttendanceModel.findOne({
       date: { $gte: startOfDay, $lte: endOfDay },
     });
-    if (exist) continue;
+    if (existAttendance) continue;
 
     employees.forEach((emp) => {
+      // Mặc định Absent
+      let status = AttendanceStatus.ABSENT;
+
+      const hasLeave = leaveRequests.some(
+        (lr) => lr.employeeId === emp.id && lr.startDate <= endOfDay && lr.endDate >= startOfDay,
+      );
+
+      if (hasLeave) {
+        status = AttendanceStatus.ONLEAVE;
+      }
+
       attendanceList.push({
         employeeId: emp._id,
         date: startOfDay,
-        status: AttendanceStatus.ABSENT,
+        status,
       });
     });
   }
 
   if (attendanceList.length === 0) {
-    console.log('Attendance records already created for this month');
-    return { data: [] };
+    const err = new Error('Lịch điểm danh đã được tạo trong tháng này');
+    err.statusCode = 400;
+    throw err;
   }
 
   const attendanceSchedules = await AttendanceModel.insertMany(attendanceList);
