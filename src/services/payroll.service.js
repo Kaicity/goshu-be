@@ -241,4 +241,29 @@ const updatePayrollService = async (id, updateData) => {
   return { data };
 };
 
-module.exports = { createPayrollService, calculateDeductions, getAllPayrollService, getPayrollService, updatePayrollService };
+const deletePayrollService = async (id) => {
+  if (!isValidObjectId(id)) {
+    const err = new Error('Invalid payroll ID format');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const payroll = await PayrollModel.findById(id);
+
+  if (payroll.status !== PayrollStatus.OPEN) {
+    const err = new Error('Bảng lương đang tính toán hoặc đã đóng, không thể xóa !');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  await PayrollModel.findByIdAndDelete(id);
+};
+
+module.exports = {
+  createPayrollService,
+  calculateDeductions,
+  getAllPayrollService,
+  getPayrollService,
+  updatePayrollService,
+  deletePayrollService,
+};

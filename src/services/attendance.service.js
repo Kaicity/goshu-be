@@ -3,6 +3,7 @@ const AttendanceModel = require('../models/attendanceModel');
 const EmployeeModel = require('../models/employeeModel');
 const { formatInTimeZone } = require('date-fns-tz');
 const { getIO } = require('../configs/socket');
+const EmployeeStatus = require('../enums/employeeStatus');
 
 const timeZone = 'Asia/Ho_Chi_Minh';
 
@@ -214,4 +215,70 @@ const getAllAttendancesService = async ({ page, limit, skip, search }, { date, s
   };
 };
 
-module.exports = { checkInService, checkOutService, getAllAttendancesService };
+const generateAttendanceManualService = async () => {
+  const todayVN = formatInTimeZone(new Date(), timeZone, 'yyyy-MM-dd HH:mm:ss');
+
+  const startOfDay = new Date(todayVN);
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const endOfDay = new Date(todayVN);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  // Check đã tạo cho ngày hôm nay chưa
+  const exist = await AttendanceModel.findOne({
+    date: { $gte: startOfDay, $lte: endOfDay },
+  });
+
+  if (exist) {
+    console.log('Attendance records already created for today');
+    return;
+  }
+
+  // Lấy tất cả nhân viên chưa nghỉ việc
+  const employees = await EmployeeModel.find({
+    status: { $ne: EmployeeStatus.TERMINATED },
+  });
+
+  const attendanceList = employees.map((emp) => ({
+    employeeId: emp._id,
+    date: startOfDay, // set date = 00:00:00 VN
+    status: AttendanceStatus.ABSENT,
+  }));
+
+  const attendanceSchedules = await AttendanceModel.insertMany(attendanceList);
+
+  const data = attendanceSchedules.map((item) => ({
+    employeeId: item.employeeId,
+    date: item.date,
+    status: item.status,
+    createdAt: item.createdAt,
+  }));
+
+  return { data };
+};
+
+const deleteAttendanceInMonthService = async (year, month) => {
+  const startOfMonth = new Date(year, month - 1, 1);
+  startOfMonth.setHours(0, 0, 0, 0);
+
+  const endOfMonth = new Date(year, month, 0);
+  endOfMonth.setHours(23, 59, 59, 999);
+
+  const result = await AttendanceModel.deleteMany({
+    date: { $gte: startOfMonth, $lte: endOfMonth },
+  });
+
+  if (result.deletedCount === 0) {
+    const err = new Error(`Không tìm thấy bản ghi nào trong ${month}/${year}`);
+    err.statusCode = 404;
+    throw err;
+  }
+};
+
+module.exports = {
+  checkInService,
+  checkOutService,
+  getAllAttendancesService,
+  generateAttendanceManualService,
+  deleteAttendanceInMonthService,
+};

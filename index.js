@@ -33,7 +33,7 @@ app.use('/auth', authRouter);
 app.use('/users', userRouter);
 app.use('/employees', employeeRouter);
 app.use('/departments', verifyToken, authorizeRole(UserRoles.HR), departmentRouter);
-app.use('/attendances', verifyToken, authorizeRole(UserRoles.EMPLOYEE, UserRoles.HR), attendanceRouter);
+app.use('/attendances', verifyToken, attendanceRouter);
 app.use('/leaveRequests/', verifyToken, leaveRequestRouter);
 app.use('/payrolls/', payrollRouter);
 

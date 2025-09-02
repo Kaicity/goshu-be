@@ -5,6 +5,7 @@ const {
   getAllPayrollService,
   getPayrollService,
   updatePayrollService,
+  deletePayrollService,
 } = require('../services/payroll.service');
 
 const createPayroll = asyncHandle(async (req, res) => {
@@ -51,6 +52,14 @@ const updatePayroll = asyncHandle(async (req, res) => {
   });
 });
 
-const deletePayroll = asyncHandle(async (req, res) => {});
+const deletePayroll = asyncHandle(async (req, res) => {
+  const { id } = req.params;
+  const result = await deletePayrollService(id);
+
+  res.status(200).json({
+    message: 'Deleted payroll is successfully',
+    ...result,
+  });
+});
 
 module.exports = { createPayroll, getAllPayroll, getPayroll, updatePayroll, deletePayroll };
