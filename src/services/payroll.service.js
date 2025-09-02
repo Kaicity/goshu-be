@@ -259,6 +259,8 @@ const deletePayrollService = async (id) => {
   await PayrollModel.findByIdAndDelete(id);
 };
 
+const generatePayrollsForMonthService = async (year, month) => {};
+
 module.exports = {
   createPayrollService,
   calculateDeductions,

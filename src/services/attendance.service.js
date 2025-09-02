@@ -218,6 +218,23 @@ const getAllAttendancesService = async ({ page, limit, skip, search }, { date, s
 };
 
 const generateAttendanceManualForMonthService = async (year, month) => {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+
+  if (year < currentYear) {
+    const err = new Error('Không được phép tạo lịch cho năm đã qua');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  if (year === currentYear && month < currentMonth) {
+    const err = new Error('Không được phép tạo lịch cho tháng đã qua');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  // ============= HỢP LỆ THÁNG NĂM TƯƠNG LAI =============
   const startOfMonth = new Date(year, month - 1, 1);
   const endOfMonth = new Date(year, month, 0);
 
