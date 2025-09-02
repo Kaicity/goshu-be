@@ -14,6 +14,13 @@ const createDailyAttendance = async () => {
     const startOfDay = new Date(todayVN);
     startOfDay.setHours(0, 0, 0, 0);
 
+    // Tránh tạo vào thứ 7 và chủ nhật
+    const dayOfWeek = startOfDay.getDay(); // 0: CN, 6: T7
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      console.log('No attendance creation on weekends');
+      return;
+    }
+
     const endOfDay = new Date(todayVN);
     endOfDay.setHours(23, 59, 59, 999);
 

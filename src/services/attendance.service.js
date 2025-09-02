@@ -215,35 +215,46 @@ const getAllAttendancesService = async ({ page, limit, skip, search }, { date, s
   };
 };
 
-const generateAttendanceManualService = async () => {
-  const todayVN = formatInTimeZone(new Date(), timeZone, 'yyyy-MM-dd HH:mm:ss');
+const generateAttendanceManualForMonthService = async (year, month) => {
+  const startOfMonth = new Date(year, month - 1, 1);
+  const endOfMonth = new Date(year, month, 0);
 
-  const startOfDay = new Date(todayVN);
-  startOfDay.setHours(0, 0, 0, 0);
-
-  const endOfDay = new Date(todayVN);
-  endOfDay.setHours(23, 59, 59, 999);
-
-  // Check đã tạo cho ngày hôm nay chưa
-  const exist = await AttendanceModel.findOne({
-    date: { $gte: startOfDay, $lte: endOfDay },
-  });
-
-  if (exist) {
-    console.log('Attendance records already created for today');
-    return;
-  }
-
-  // Lấy tất cả nhân viên chưa nghỉ việc
   const employees = await EmployeeModel.find({
     status: { $ne: EmployeeStatus.TERMINATED },
   });
 
-  const attendanceList = employees.map((emp) => ({
-    employeeId: emp._id,
-    date: startOfDay, // set date = 00:00:00 VN
-    status: AttendanceStatus.ABSENT,
-  }));
+  const attendanceList = [];
+
+  // Duyệt qua từng ngày trong tháng
+  for (let d = new Date(startOfMonth); d <= endOfMonth; d.setDate(d.getDate() + 1)) {
+    const dayOfWeek = d.getDay(); // 0: CN, 6: T7
+    if (dayOfWeek === 0 || dayOfWeek === 6) continue; // bỏ thứ 7, CN
+
+    const startOfDay = new Date(d);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(d);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    // Check nếu đã tạo attendance cho ngày này chưa
+    const exist = await AttendanceModel.findOne({
+      date: { $gte: startOfDay, $lte: endOfDay },
+    });
+    if (exist) continue;
+
+    employees.forEach((emp) => {
+      attendanceList.push({
+        employeeId: emp._id,
+        date: startOfDay,
+        status: AttendanceStatus.ABSENT,
+      });
+    });
+  }
+
+  if (attendanceList.length === 0) {
+    console.log('Attendance records already created for this month');
+    return { data: [] };
+  }
 
   const attendanceSchedules = await AttendanceModel.insertMany(attendanceList);
 
@@ -275,10 +286,35 @@ const deleteAttendanceInMonthService = async (year, month) => {
   }
 };
 
+const updateAttendanceRangeDaysService = async (updateData) => {
+  const { fromDate, toDate, status, employeeId } = updateData;
+
+  const isFromDate = new Date(fromDate);
+  isFromDate.setHours(0, 0, 0, 0);
+
+  const isEndDate = new Date(toDate);
+  isEndDate.setHours(23, 59, 59, 999);
+
+  const query = { date: { $gte: isFromDate, $lte: isEndDate } };
+
+  if (employeeId) {
+    query.employeeId = employeeId;
+  }
+
+  const result = await AttendanceModel.updateMany(query, { $set: { status } });
+
+  if (result.deletedCount === 0) {
+    const err = new Error(`Không tìm thấy bản ghi nào trong ${fromDate} - ${toDate}`);
+    err.statusCode = 404;
+    throw err;
+  }
+};
+
 module.exports = {
   checkInService,
   checkOutService,
   getAllAttendancesService,
-  generateAttendanceManualService,
+  generateAttendanceManualForMonthService,
   deleteAttendanceInMonthService,
+  updateAttendanceRangeDaysService,
 };
