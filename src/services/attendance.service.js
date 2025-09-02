@@ -255,7 +255,7 @@ const generateAttendanceManualForMonthService = async (year, month) => {
       let status = AttendanceStatus.ABSENT;
 
       const hasLeave = leaveRequests.some(
-        (lr) => lr.employeeId === emp.id && lr.startDate <= endOfDay && lr.endDate >= startOfDay,
+        (lr) => lr.employeeId.toString() === emp._id.toString() && lr.startDate <= endOfDay && lr.endDate >= startOfDay,
       );
 
       if (hasLeave) {
