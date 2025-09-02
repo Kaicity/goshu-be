@@ -24,7 +24,8 @@ const verifyToken = asyncHandle(async (req, res, next) => {
       next();
     } catch (error) {
       res.status(401);
-      throw new Error('Invalid or expired token');
+      console.log('Invalid or expired token');
+      throw new Error('Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại');
     }
   }
 });
