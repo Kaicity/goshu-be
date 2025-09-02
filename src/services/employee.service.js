@@ -1,8 +1,6 @@
 const { isValidObjectId } = require('mongoose');
 const EmployeeModel = require('../models/employeeModel');
 const DepartmentModel = require('../models/departmentModel');
-const UserRoles = require('../enums/userRoles');
-const UserModel = require('../models/userModel');
 
 const getAllEmployeesService = async ({ page, limit, skip, search }, { department, type }) => {
   const query = {};

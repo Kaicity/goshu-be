@@ -2,6 +2,8 @@ const PayrollModel = require('../models/payrollModel');
 const EmployeeModel = require('../models/employeeModel');
 const AttendanceModel = require('../models/attendanceModel');
 const AttendanceStatus = require('../enums/attendanceStatus');
+const { isValidObjectId } = require('mongoose');
+const PayrollStatus = require('../enums/payrollStatus');
 
 /**
  * Tính deductions dựa trên Attendance
@@ -20,8 +22,6 @@ const calculateDeductions = async (employeeId, month, year, basicSalary) => {
     date: { $gte: firstDay, $lte: lastDay },
   });
 
-  console.log(attendances);
-
   let lateCount = 0;
   let absentCount = 0;
 
@@ -37,7 +37,7 @@ const calculateDeductions = async (employeeId, month, year, basicSalary) => {
 
   const deductionAbsent = absentCount * dailySalary;
 
-  return deductionLate + deductionAbsent;
+  return Number(deductionLate + deductionAbsent).toFixed(2);
 };
 
 const createPayrollService = async (createData) => {
@@ -94,4 +94,176 @@ const createPayrollService = async (createData) => {
   return { data };
 };
 
-module.exports = { createPayrollService, calculateDeductions };
+const getAllPayrollService = async ({ page, limit, skip, search }, { month, year, minSalary, maxSalary, status, employeeId }) => {
+  const query = {};
+
+  // Search query đến bảng employee vì trong bảng này không chưa fullname, employeeCode
+  if (search) {
+    const employees = await EmployeeModel.find({
+      $or: [
+        { firstname: { $regex: search, $options: 'i' } },
+        { lastname: { $regex: search, $options: 'i' } },
+        { employeeCode: { $regex: search, $options: 'i' } },
+      ],
+    }).select('_id');
+
+    query.employeeId = { $in: employees.map((e) => e._id) }; // mapping id employee query
+  }
+
+  if (month) query.month = month;
+
+  if (year) query.year = year;
+
+  if (status) query.status = status;
+
+  if (employeeId) query.employeeId = employeeId;
+
+  if (minSalary || maxSalary) {
+    query.netSalary = {};
+    if (minSalary) query.netSalary.$gte = minSalary;
+    if (maxSalary) query.netSalary.$lte = maxSalary;
+  }
+
+  const [total, payrolls] = await Promise.all([
+    PayrollModel.countDocuments(query),
+    PayrollModel.find(query)
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 })
+      .populate('employeeId', 'firstname lastname employeeCode avatarUrl'),
+  ]);
+
+  const data = payrolls.map((item) => ({
+    payroll: {
+      month: item.month,
+      year: item.year,
+      basicSalary: item.basicSalary,
+      allowance: item.allowance,
+      overtime: item.overtime,
+      deductions: item.deductions,
+      netSalary: item.netSalary,
+      status: item.status,
+    },
+    employee: {
+      id: item.employeeId.id,
+      employeeCode: item.employeeId.employeeCode,
+      firstname: item.employeeId.firstname,
+      lastname: item.employeeId.lastname,
+      avatarUrl: item.employeeId.avatarUrl,
+    },
+    createdAt: item.createdAt,
+    updatedAt: item.updatedAt,
+  }));
+
+  return {
+    data,
+    pagination: {
+      totalItems: total,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      limit,
+    },
+  };
+};
+
+const getPayrollService = async (id) => {
+  if (!isValidObjectId(id)) {
+    const err = new Error('Invalid payroll ID format');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const payroll = await PayrollModel.findById(id);
+
+  const data = {
+    month: payroll.month,
+    year: payroll.year,
+    basicSalary: payroll.basicSalary,
+    allowance: payroll.allowance,
+    overtime: payroll.overtime,
+    deductions: payroll.deductions,
+    netSalary: payroll.netSalary,
+    status: payroll.status,
+    createdAt: payroll.createdAt,
+    updatedAt: payroll.updatedAt,
+  };
+
+  return { data };
+};
+
+const updatePayrollService = async (id, updateData) => {
+  if (!isValidObjectId(id)) {
+    const err = new Error('Invalid payroll ID format');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const payroll = await PayrollModel.findById(id);
+  if (!payroll) {
+    const err = new Error('Not found payroll');
+    err.statusCode = 404;
+    throw err;
+  }
+
+  // Nếu status = CLOSED thì không cho update
+  if (payroll.status === PayrollStatus.CLOSED) {
+    const err = new Error('Lương đã được chốt định kì, không thể chỉnh sửa');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  // cho phép update payroll những trường có thể thay đổi
+  const allowedFields = ['basicSalary', 'allowance', 'overtime', 'deductions', 'status'];
+  const safeUpdateData = Object.fromEntries(Object.entries(updateData).filter(([key]) => allowedFields.includes(key)));
+
+  Object.assign(payroll, safeUpdateData); // Mapping giá trị được update
+
+  // gọi lại calculateDeductions -> ngày nghỉ, vắng
+  payroll.deductions = await calculateDeductions(payroll.employeeId, payroll.month, payroll.year, payroll.basicSalary);
+
+  // cập nhật lại netSalary
+  payroll.netSalary = Number(payroll.basicSalary + payroll.allowance + payroll.overtime - payroll.deductions).toFixed(2);
+
+  await payroll.save();
+
+  const data = {
+    month: payroll.month,
+    year: payroll.year,
+    basicSalary: payroll.basicSalary,
+    allowance: payroll.allowance,
+    overtime: payroll.overtime,
+    deductions: payroll.deductions,
+    netSalary: payroll.netSalary,
+    status: payroll.status,
+    updatedAt: payroll.updatedAt,
+  };
+
+  return { data };
+};
+
+const deletePayrollService = async (id) => {
+  if (!isValidObjectId(id)) {
+    const err = new Error('Invalid payroll ID format');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const payroll = await PayrollModel.findById(id);
+
+  if (payroll.status !== PayrollStatus.OPEN) {
+    const err = new Error('Bảng lương đang tính toán hoặc đã đóng, không thể xóa !');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  await PayrollModel.findByIdAndDelete(id);
+};
+
+module.exports = {
+  createPayrollService,
+  calculateDeductions,
+  getAllPayrollService,
+  getPayrollService,
+  updatePayrollService,
+  deletePayrollService,
+};

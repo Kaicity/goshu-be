@@ -39,9 +39,7 @@ const createDailyAttendance = async () => {
     }));
 
     await AttendanceModel.insertMany(attendanceList);
-    console.log(
-      `Attendance created for ${employees.length} employees, date: ${startOfDay.toISOString()} + thêm 7 tiếng ra giờ việt đó hen`,
-    );
+    console.log(`Attendance created for ${employees.length} employees, date: ${startOfDay.toISOString()}`);
   } catch (error) {
     console.error('Error creating daily attendance:', error.message);
   }

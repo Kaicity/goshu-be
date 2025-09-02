@@ -1,6 +1,12 @@
 const asyncHandle = require('express-async-handler');
 const paginate = require('../utils/paginate');
-const { checkInService, checkOutService, getAllAttendancesService } = require('../services/attendance.service');
+const {
+  checkInService,
+  checkOutService,
+  getAllAttendancesService,
+  generateAttendanceManualService,
+  deleteAttendanceInMonthService,
+} = require('../services/attendance.service');
 
 const checkIn = asyncHandle(async (req, res) => {
   const result = await checkInService(req.body);
@@ -31,4 +37,23 @@ const getAllAttendance = asyncHandle(async (req, res) => {
   });
 });
 
-module.exports = { checkIn, checkOut, getAllAttendance };
+const generateAttendanceManual = asyncHandle(async (req, res) => {
+  const result = await generateAttendanceManualService();
+
+  res.status(200).json({
+    message: 'Generated attendance schedule today is successfully',
+    ...result,
+  });
+});
+
+const deleteAttendanceInMonth = asyncHandle(async (req, res) => {
+  const { year, month } = req.params;
+  await deleteAttendanceInMonthService(year, month);
+
+  res.status(200).json({
+    message: 'Has deleted all attendances is successfully',
+    data: {},
+  });
+});
+
+module.exports = { checkIn, checkOut, getAllAttendance, generateAttendanceManual, deleteAttendanceInMonth };
