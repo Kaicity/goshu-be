@@ -84,6 +84,8 @@ const EmployeeSchema = new mongoose.Schema({
   country: {
     type: String,
   },
+  basicSalary: { type: Number, default: 0 },
+  allowance: { type: Number, default: 0 },
   createdAt: {
     type: Date,
     default: Date.now,

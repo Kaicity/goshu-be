@@ -134,6 +134,8 @@ const updateEmployeeService = async (id, updateData) => {
     workingDate: employee.workingDate,
     status: employee.status,
     document: employee.document,
+    basicSalary: employee.basicSalary,
+    allowance: employee.allowance,
 
     // Tài khoản liên kết
     githubId: employee.githubId,
@@ -196,6 +198,8 @@ const getEmployeeService = async (id) => {
     workingDate: employee.workingDate,
     status: employee.status,
     document: employee.document,
+    basicSalary: employee.basicSalary,
+    allowance: employee.allowance,
 
     // 5. Tài khoản liên kết
     githubId: employee.githubId,

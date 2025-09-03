@@ -4,6 +4,8 @@ const AttendanceModel = require('../models/attendanceModel');
 const AttendanceStatus = require('../enums/attendanceStatus');
 const { isValidObjectId } = require('mongoose');
 const PayrollStatus = require('../enums/payrollStatus');
+const { validateFutureSchedule } = require('../utils/scheduleValidate');
+const EmployeeStatus = require('../enums/employeeStatus');
 
 /**
  * Tính deductions dựa trên Attendance
@@ -43,21 +45,6 @@ const calculateDeductions = async (employeeId, month, year, basicSalary) => {
 const createPayrollService = async (createData) => {
   const { employeeId, month, year, basicSalary, allowance = 0, overtime = 0, deductions = 0 } = createData;
 
-  const employee = await EmployeeModel.findById(employeeId);
-  if (!employee) {
-    const err = new Error('Employee not found in system');
-    err.statusCode = 404;
-    throw err;
-  }
-
-  // Check nhân viên này đc tạo lương tháng này chưa
-  const existingPayroll = await PayrollModel.findOne({ employeeId, month, year });
-  if (existingPayroll) {
-    const err = new Error(`Bảng lương của nhân viên này đã được tạo trong tháng ${month}/${year}`);
-    err.statusCode = 400;
-    throw err;
-  }
-
   // Check đi trễ bao nhiêu lần, số buổi vắng( trừ lương chứ gì)
   const autoDeductions = await calculateDeductions(employeeId, month, year, basicSalary);
 
@@ -94,7 +81,10 @@ const createPayrollService = async (createData) => {
   return { data };
 };
 
-const getAllPayrollService = async ({ page, limit, skip, search }, { month, year, minSalary, maxSalary, status, employeeId }) => {
+const getAllPayrollService = async (
+  { page, limit, skip, search },
+  { month, year, minSalary, maxSalary, status, employeeId },
+) => {
   const query = {};
 
   // Search query đến bảng employee vì trong bảng này không chưa fullname, employeeCode
@@ -222,7 +212,9 @@ const updatePayrollService = async (id, updateData) => {
   payroll.deductions = await calculateDeductions(payroll.employeeId, payroll.month, payroll.year, payroll.basicSalary);
 
   // cập nhật lại netSalary
-  payroll.netSalary = Number(payroll.basicSalary + payroll.allowance + payroll.overtime - payroll.deductions).toFixed(2);
+  payroll.netSalary = Number(payroll.basicSalary + payroll.allowance + payroll.overtime - payroll.deductions).toFixed(
+    2,
+  );
 
   await payroll.save();
 
@@ -259,7 +251,60 @@ const deletePayrollService = async (id) => {
   await PayrollModel.findByIdAndDelete(id);
 };
 
-const generatePayrollsForMonthService = async (year, month) => {};
+/**
+ * Luồng nghiệp vụ:
+ * - Dùng cho ngày 25 hàng tháng
+ * - Chốt lương và xóa lịch điểm danh cũ để bắt đầu tháng mới
+ */
+const createPayrollForAllEmployeesService = async (year, month) => {
+  const startMonth = new Date(year, month - 1, 1);
+  startMonth.setHours(0, 0, 0, 0);
+  const endMonth = new Date(year, month, 0);
+  endMonth.setHours(23, 59, 59, 999);
+
+  // Check lương được tạo tháng này chưa
+  const payroll = PayrollModel.find({ year, month });
+  if (payroll) {
+    const err = new Error(`Bảng lương của tất cả nhân viên đã được tạo trong tháng ${month}/${year}`);
+    err.statusCode = 400;
+    throw err;
+  }
+
+  // Check month, year hiện tại
+  validateFutureSchedule(year, month);
+
+  const employees = await EmployeeModel.find({
+    status: { $ne: EmployeeStatus.TERMINATED },
+  });
+
+  if (!employees || employees.length === 0) {
+    const err = new Error('Không có nhân viên nào để tạo bảng lương');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  // Duyệt từng nhân viên để sẵn sàng tạo bảng lương
+  const data = [];
+
+  for (const emp of employees) {
+    // Lấy thông tin lương bảng nhân viên
+    const basicSalary = emp.basicSalary || 0;
+    const allowance = emp.allowance || 0;
+
+    const createData = {
+      employeeId: emp._id,
+      month,
+      year,
+      basicSalary,
+      allowance,
+    };
+
+    const payroll = await createPayrollService(createData);
+    data.push(payroll.data);
+  }
+
+  return { data };
+};
 
 module.exports = {
   createPayrollService,
@@ -268,4 +313,5 @@ module.exports = {
   getPayrollService,
   updatePayrollService,
   deletePayrollService,
+  createPayrollForAllEmployeesService,
 };

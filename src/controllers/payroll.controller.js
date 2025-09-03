@@ -6,6 +6,7 @@ const {
   getPayrollService,
   updatePayrollService,
   deletePayrollService,
+  createPayrollForAllEmployeesService,
 } = require('../services/payroll.service');
 
 const createPayroll = asyncHandle(async (req, res) => {
@@ -13,6 +14,16 @@ const createPayroll = asyncHandle(async (req, res) => {
 
   res.status(200).json({
     message: 'Create payroll is successfully',
+    ...result,
+  });
+});
+
+const createPayrollForAllEmployees = asyncHandle(async (req, res) => {
+  const { year, month } = req.body;
+  const result = await createPayrollForAllEmployeesService(year, month);
+
+  res.status(200).json({
+    message: 'Create payroll for all employees is successfully',
     ...result,
   });
 });
@@ -62,4 +73,11 @@ const deletePayroll = asyncHandle(async (req, res) => {
   });
 });
 
-module.exports = { createPayroll, getAllPayroll, getPayroll, updatePayroll, deletePayroll };
+module.exports = {
+  createPayroll,
+  getAllPayroll,
+  getPayroll,
+  updatePayroll,
+  deletePayroll,
+  createPayrollForAllEmployees,
+};
