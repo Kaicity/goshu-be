@@ -13,11 +13,10 @@ const departmentRouter = require('./src/routers/department.router');
 const UserRoles = require('./src/enums/userRoles');
 const verifyToken = require('./src/middlewares/verifyMiddleware');
 const authorizeRole = require('./src/middlewares/authorizeRole');
-const seedDepartment = require('./src/seeds/seedDepartment');
 const attendanceRouter = require('./src/routers/attendance.router');
 const leaveRequestRouter = require('./src/routers/leave-request.router');
 const payrollRouter = require('./src/routers/payroll.router');
-require('./src/cronJobs/attendanceJob');
+// require('./src/cronJobs/attendanceJob');
 
 const app = express();
 const server = http.createServer(app);
@@ -48,7 +47,6 @@ connectDB();
 
 // SEED DATA
 seedAdminAccount();
-// seedDepartment();
 
 app.use(errorMiddlewareHandle);
 

@@ -306,6 +306,8 @@ const createPayrollForAllEmployeesService = async (year, month) => {
   return { data };
 };
 
+// SERVICE API CHỐT LƯƠNG SET STATUS CLOSE => XÓA TẤT CẢ ATTENDANCE THÁNG CŨ ( NGÀY KỂ TỪ 22 TRỞ ĐI)
+
 module.exports = {
   createPayrollService,
   calculateDeductions,
