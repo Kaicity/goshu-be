@@ -2,6 +2,8 @@ const { isValidObjectId } = require('mongoose');
 const LeaveRequestStatus = require('../enums/leaveRequestStatus');
 const EmployeeModel = require('../models/employeeModel');
 const LeaveRequestModel = require('../models/leaveRequestModel');
+const { updateAttendanceRangeDaysService } = require('./attendance.service');
+const AttendanceStatus = require('../enums/attendanceStatus');
 
 const createLeaveRequestService = async (leaveRequestData) => {
   const { employeeId, startDate, endDate } = leaveRequestData;
@@ -103,6 +105,16 @@ const approveLeaveRequestService = async (id, leaveRequestData) => {
     err.statusCode = 404;
     throw err;
   }
+
+  // Update attendance cho ngày đó
+  const updateData = {
+    fromDate: leaveRequestUpdated.startDate,
+    toDate: leaveRequestUpdated.endDate,
+    status: AttendanceStatus.ONLEAVE,
+    employeeId: leaveRequestUpdated.employeeId,
+  };
+
+  await updateAttendanceRangeDaysService(updateData);
 
   const data = {
     employeeId: leaveRequestUpdated.employeeId,

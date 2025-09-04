@@ -257,21 +257,17 @@ const deletePayrollService = async (id) => {
  * - Chốt lương và xóa lịch điểm danh cũ để bắt đầu tháng mới
  */
 const createPayrollForAllEmployeesService = async (year, month) => {
-  const startMonth = new Date(year, month - 1, 1);
-  startMonth.setHours(0, 0, 0, 0);
-  const endMonth = new Date(year, month, 0);
-  endMonth.setHours(23, 59, 59, 999);
+  // Check month, year hiện tại
+  validateFutureSchedule(year, month);
 
   // Check lương được tạo tháng này chưa
-  const payroll = PayrollModel.find({ year, month });
-  if (payroll) {
+  const payroll = await PayrollModel.find({ year, month });
+
+  if (payroll.length > 0) {
     const err = new Error(`Bảng lương của tất cả nhân viên đã được tạo trong tháng ${month}/${year}`);
     err.statusCode = 400;
     throw err;
   }
-
-  // Check month, year hiện tại
-  validateFutureSchedule(year, month);
 
   const employees = await EmployeeModel.find({
     status: { $ne: EmployeeStatus.TERMINATED },
