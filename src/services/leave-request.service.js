@@ -153,7 +153,7 @@ const getAllLeaveRequestsService = async ({ page, limit, skip, search }, { statu
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 })
-      .populate('employeeId', 'firstname lastname employeeCode avatarUrl'),
+      .populate('employeeId approvedBy', 'firstname lastname employeeCode avatarUrl'),
   ]);
 
   const data = leaveRequests.map((item) => ({
@@ -164,6 +164,14 @@ const getAllLeaveRequestsService = async ({ page, limit, skip, search }, { statu
       reason: item.reason,
       status: item.status,
       note: item.note,
+      approvedBy: item.approvedBy
+        ? {
+            id: item.approvedBy.id,
+            employeeCode: item.approvedBy.employeeCode,
+            firstname: item.approvedBy.firstname,
+            lastname: item.approvedBy.lastname,
+          }
+        : null,
     },
     employee: {
       id: item.employeeId.id,
