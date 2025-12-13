@@ -80,6 +80,18 @@ const createLeaveRequestService = async (leaveRequestData) => {
 
   await leaveRequest.save();
 
+  // Gửi socket
+  const io = getIO();
+  io.emit('leave-request:added', {
+    employeeId: leaveRequest.employeeId,
+    startDate: leaveRequest.startDate,
+    endDate: leaveRequest.endDate,
+    reason: leaveRequest.reason,
+    status: leaveRequest.status,
+    note: leaveRequest.note,
+    createdAt: leaveRequest.createdAt,
+  });
+
   const data = {
     employeeId: leaveRequest.employeeId,
     startDate: leaveRequest.startDate,
@@ -89,10 +101,6 @@ const createLeaveRequestService = async (leaveRequestData) => {
     note: leaveRequest.note,
     createdAt: leaveRequest.createdAt,
   };
-
-  // Gửi socket
-  const io = getIO();
-  io.emit('leave-request:added', data);
 
   return { data };
 };
