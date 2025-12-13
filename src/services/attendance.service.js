@@ -6,7 +6,8 @@ const { formatInTimeZone } = require('date-fns-tz');
 const { getIO } = require('../configs/socket');
 const EmployeeStatus = require('../enums/employeeStatus');
 const LeaveRequestStatus = require('../enums/leaveRequestStatus');
-const timeZone = 'Asia/Ho_Chi_Minh';
+
+const timeZone = process.env.TIMEZONE;
 
 const checkInService = async (checkInData) => {
   const { employeeId } = checkInData;

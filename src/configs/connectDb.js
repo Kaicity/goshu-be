@@ -1,7 +1,7 @@
 const { mongoose } = require('mongoose');
 
-// const dbUrl = `mongodb+srv://${process.env.DATABASE_USERNAME}:${process.env.DATABASE_PASSWORD}@cluster0.3otpkkf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
-const dbUrl = 'mongodb://localhost:27017/goshu_hrm';
+const dbUrl = `mongodb+srv://${process.env.DATABASE_USERNAME}:${process.env.DATABASE_PASSWORD}@goshu-hr.bcddhxz.mongodb.net/goshu_hrm?retryWrites=true&w=majority`;
+// const dbUrl = 'mongodb://localhost:27017/goshu_hrm';
 
 const connectDB = async () => {
   try {
