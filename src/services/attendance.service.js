@@ -7,7 +7,7 @@ const { getIO } = require('../configs/socket');
 const EmployeeStatus = require('../enums/employeeStatus');
 const LeaveRequestStatus = require('../enums/leaveRequestStatus');
 
-const timeZone = process.env.TIMEZONE;
+const timeZone = 'Asia/Ho_Chi_Minh';
 
 const checkInService = async (checkInData) => {
   const { employeeId } = checkInData;
@@ -253,7 +253,7 @@ const generateAttendanceManualForMonthService = async (year, month) => {
   // Duyệt qua từng ngày trong tháng
   for (let d = new Date(startOfMonth); d <= endOfMonth; d.setDate(d.getDate() + 1)) {
     const dayOfWeek = d.getDay(); // 0: CN, 6: T7
-    if (dayOfWeek === 0 || dayOfWeek === 7) continue; // bỏ thứ 7, CN
+    if (dayOfWeek === 0 || dayOfWeek === 6) continue; // bỏ thứ 7, CN
 
     const startOfDay = new Date(d);
     startOfDay.setHours(0, 0, 0, 0);
