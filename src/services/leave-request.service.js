@@ -4,6 +4,7 @@ const EmployeeModel = require('../models/employeeModel');
 const LeaveRequestModel = require('../models/leaveRequestModel');
 const { updateAttendanceRangeDaysService } = require('./attendance.service');
 const AttendanceStatus = require('../enums/attendanceStatus');
+const { getIO } = require('../configs/socket');
 
 const createLeaveRequestService = async (leaveRequestData) => {
   const { employeeId, startDate, endDate } = leaveRequestData;
@@ -88,6 +89,10 @@ const createLeaveRequestService = async (leaveRequestData) => {
     note: leaveRequest.note,
     createdAt: leaveRequest.createdAt,
   };
+
+  // Gửi socket
+  const io = getIO();
+  io.emit('leave-request:added', data);
 
   return { data };
 };

@@ -45,7 +45,6 @@ const createAccountService = async (createData) => {
     status: status || UserStatus.ACTIVE,
   });
 
-  // Lưu vào DB
   await newUser.save();
 
   // Đẩy sự kiện socket

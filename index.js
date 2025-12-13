@@ -17,6 +17,7 @@ const attendanceRouter = require('./src/routers/attendance.router');
 const leaveRequestRouter = require('./src/routers/leave-request.router');
 const payrollRouter = require('./src/routers/payroll.router');
 // require('./src/cronJobs/attendanceJob');
+const seedDepartment = require('./src/seeds/seedDepartment');
 
 const app = express();
 const server = http.createServer(app);
@@ -47,6 +48,7 @@ connectDB();
 
 // SEED DATA
 seedAdminAccount();
+seedDepartment();
 
 app.use(errorMiddlewareHandle);
 
