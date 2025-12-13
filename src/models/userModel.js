@@ -21,7 +21,7 @@ const UserSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: [UserStatus.ACTIVE, UserStatus.INACTIVE, UserStatus.SUSPENDED, UserStatus.PENDING],
+    enum: [UserStatus.ACTIVE, UserStatus.SUSPENDED],
     require,
   },
   currentToken: {

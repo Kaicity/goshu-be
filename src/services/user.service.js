@@ -42,7 +42,7 @@ const createAccountService = async (createData) => {
     password: hashedPassword,
     employeeId: newEmployee ? newEmployee.id : undefined,
     role,
-    status: status || UserStatus.PENDING,
+    status: status || UserStatus.ACTIVE,
   });
 
   // Lưu vào DB

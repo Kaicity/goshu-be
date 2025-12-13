@@ -19,8 +19,8 @@ const authService = async ({ email, password }) => {
     throw err;
   }
 
-  if (user.status === UserStatus.INACTIVE) {
-    const err = new Error('Rất tiếc tài khoản người dùng đã tạm dừng, liên hệ Admin để khôi phục!');
+  if (user.status === UserStatus.SUSPENDED) {
+    const err = new Error('Rất tiếc tài khoản người dùng đang tạm dừng!');
     err.statusCode = 403;
     throw err;
   }
