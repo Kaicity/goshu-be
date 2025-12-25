@@ -125,6 +125,7 @@ const getAllPayrollService = async (
 
   const data = payrolls.map((item) => ({
     payroll: {
+      id: item.id,
       month: item.month,
       year: item.year,
       basicSalary: item.basicSalary,
