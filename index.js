@@ -47,8 +47,8 @@ const PORT = process.env.PORT || 3000;
 connectDB();
 
 // SEED DATA
-seedAdminAccount();
-seedDepartment();
+// seedAdminAccount();
+// seedDepartment();
 
 app.use(errorMiddlewareHandle);
 
