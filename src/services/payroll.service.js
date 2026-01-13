@@ -54,6 +54,8 @@ const createPayrollService = async (createData) => {
   // Lương tổng = lương CB + phụ cấp + OT - (buổi vắng, nghỉ không phép, đi trễ, làm tổn hại vật chất công ty, đồng phục,...)
   const netSalary = Number((basicSalary + allowance + overtime - totalDeductions).toFixed(2));
 
+  const subDeductions = Number(totalDeductions);
+
   const payroll = new PayrollModel({
     employeeId,
     month,
@@ -61,7 +63,7 @@ const createPayrollService = async (createData) => {
     basicSalary,
     allowance,
     overtime,
-    deductions,
+    deductions: subDeductions,
     netSalary,
   });
 
@@ -304,6 +306,32 @@ const createPayrollForAllEmployeesService = async (year, month) => {
 };
 
 // SERVICE API CHỐT LƯƠNG SET STATUS CLOSE => XÓA TẤT CẢ ATTENDANCE THÁNG CŨ ( NGÀY KỂ TỪ 22 TRỞ ĐI)
+const completeAllPayrollService = async () => {
+  // Check payrolls
+  const payrolls = await PayrollModel.find();
+  if (payrolls.length === 0) {
+    const err = new Error('Không thể thực hiện thao tác này vì bảng lương chưa được tạo');
+    err.statusCode = 400;
+    throw err;
+  }
+  // 1. Set status CLOSED cho toàn bộ payroll
+  await PayrollModel.updateMany(
+    { status: { $ne: PayrollStatus.CLOSED } },
+    {
+      $set: {
+        status: PayrollStatus.CLOSED,
+        updatedAt: new Date(),
+      },
+    },
+  );
+  // 2. Xóa toàn bộ attendance
+  const deleteResult = await AttendanceModel.deleteMany({});
+  const data = {
+    success: true,
+    deletedAttendance: deleteResult.deletedCount,
+  };
+  return { data };
+};
 
 module.exports = {
   createPayrollService,
@@ -313,4 +341,5 @@ module.exports = {
   updatePayrollService,
   deletePayrollService,
   createPayrollForAllEmployeesService,
+  completeAllPayrollService,
 };

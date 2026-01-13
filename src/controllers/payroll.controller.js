@@ -7,6 +7,7 @@ const {
   updatePayrollService,
   deletePayrollService,
   createPayrollForAllEmployeesService,
+  completeAllPayrollService,
 } = require('../services/payroll.service');
 
 const createPayroll = asyncHandle(async (req, res) => {
@@ -73,6 +74,15 @@ const deletePayroll = asyncHandle(async (req, res) => {
   });
 });
 
+const completeAllPayroll = asyncHandle(async (req, res) => {
+  const result = await completeAllPayrollService();
+
+  res.status(200).json({
+    message: 'Complete payroll is successfully and delete old attendance',
+    ...result,
+  });
+});
+
 module.exports = {
   createPayroll,
   getAllPayroll,
@@ -80,4 +90,5 @@ module.exports = {
   updatePayroll,
   deletePayroll,
   createPayrollForAllEmployees,
+  completeAllPayroll,
 };

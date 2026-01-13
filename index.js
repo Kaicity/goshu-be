@@ -18,6 +18,7 @@ const leaveRequestRouter = require('./src/routers/leave-request.router');
 const payrollRouter = require('./src/routers/payroll.router');
 // require('./src/cronJobs/attendanceJob');
 const seedDepartment = require('./src/seeds/seedDepartment');
+const payrollReportRouter = require('./src/routers/payroll-report.router');
 
 const app = express();
 const server = http.createServer(app);
@@ -36,6 +37,7 @@ app.use('/departments', verifyToken, authorizeRole(UserRoles.HR), departmentRout
 app.use('/attendances', verifyToken, attendanceRouter);
 app.use('/leaveRequests/', verifyToken, leaveRequestRouter);
 app.use('/payrolls/', payrollRouter);
+app.use('/payrolls-report/', payrollReportRouter);
 
 // Route default when app running
 app.get('/', (req, res) => {

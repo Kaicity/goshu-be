@@ -1,6 +1,6 @@
 const PayrollStatus = Object.freeze({
   OPEN: 'OPEN',
-  CALCULATED: 'CACLULATED',
+  CALCULATED: 'CALCULATED',
   CLOSED: 'CLOSED',
 });
 
