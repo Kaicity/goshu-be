@@ -16,7 +16,7 @@ async function seedAdminAccount() {
   });
 
   if (!existingAdmin) {
-    const employeeCode = generateRandomCode();
+    const employeeCode = generateRandomCode('NV-');
     const newEmployee = new EmployeeModel({
       email: adminEmail,
       employeeCode,

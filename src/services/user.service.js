@@ -21,7 +21,7 @@ const createAccountService = async (createData) => {
   }
 
   // Tạo mã nhân viên
-  const employeeCode = generateRandomCode();
+  const employeeCode = generateRandomCode('NV-');
 
   //Nếu là admin không cần tạo nhân viên ở đây
   let newEmployee;

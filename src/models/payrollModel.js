@@ -3,6 +3,7 @@ const PayrollStatus = require('../enums/payrollStatus');
 
 const PayrollSchema = new mongoose.Schema({
   employeeId: { type: mongoose.Schema.Types.ObjectId, ref: 'employees', required: true },
+  payrollCode: { type: String, required: true },
   month: { type: Number, required: true },
   year: { type: Number, required: true },
   basicSalary: { type: Number, required: true },

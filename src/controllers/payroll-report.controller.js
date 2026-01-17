@@ -3,7 +3,17 @@ const {
   getSalaryStructureByMonthService,
   getSalaryRatioService,
   getPayrollStatusRatioService,
+  getAvailablePayrollYearsService,
 } = require('../services/payroll-report.service');
+
+const getAvailablePayrollYears = asyncHandle(async (req, res) => {
+  const result = await getAvailablePayrollYearsService();
+
+  res.status(200).json({
+    message: 'Get available payroll year',
+    ...result,
+  });
+});
 
 const getSalaryStructureByMonth = asyncHandle(async (req, res) => {
   const { year } = req.query;
@@ -38,4 +48,4 @@ const getPayrollStatusRatio = asyncHandle(async (req, res) => {
   });
 });
 
-module.exports = { getSalaryStructureByMonth, getSalaryRatio, getPayrollStatusRatio };
+module.exports = { getSalaryStructureByMonth, getSalaryRatio, getPayrollStatusRatio, getAvailablePayrollYears };

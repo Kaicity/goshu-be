@@ -6,6 +6,7 @@ const { isValidObjectId } = require('mongoose');
 const PayrollStatus = require('../enums/payrollStatus');
 const { validateFutureSchedule } = require('../utils/scheduleValidate');
 const EmployeeStatus = require('../enums/employeeStatus');
+const generateRandomCode = require('../utils/digitCodeRandom');
 
 /**
  * Tính deductions dựa trên Attendance
@@ -45,6 +46,8 @@ const calculateDeductions = async (employeeId, month, year, basicSalary) => {
 const createPayrollService = async (createData) => {
   const { employeeId, month, year, basicSalary, allowance = 0, overtime = 0, deductions = 0 } = createData;
 
+  const payrollCode = generateRandomCode('LNV-');
+
   // Check đi trễ bao nhiêu lần, số buổi vắng( trừ lương chứ gì)
   const autoDeductions = await calculateDeductions(employeeId, month, year, basicSalary);
 
@@ -58,6 +61,7 @@ const createPayrollService = async (createData) => {
 
   const payroll = new PayrollModel({
     employeeId,
+    payrollCode,
     month,
     year,
     basicSalary,
@@ -122,12 +126,13 @@ const getAllPayrollService = async (
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 })
-      .populate('employeeId', 'firstname lastname employeeCode avatarUrl'),
+      .populate('employeeId', 'firstname lastname employeeCode avatarUrl designation'),
   ]);
 
   const data = payrolls.map((item) => ({
     payroll: {
       id: item.id,
+      payrollCode: item.payrollCode,
       month: item.month,
       year: item.year,
       basicSalary: item.basicSalary,
@@ -143,6 +148,7 @@ const getAllPayrollService = async (
       firstname: item.employeeId.firstname,
       lastname: item.employeeId.lastname,
       avatarUrl: item.employeeId.avatarUrl,
+      designation: item.employeeId.designation,
     },
     createdAt: item.createdAt,
     updatedAt: item.updatedAt,
