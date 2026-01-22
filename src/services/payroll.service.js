@@ -173,7 +173,7 @@ const getPayrollService = async (id) => {
   }
 
   const payroll = await PayrollModel.findById(id)
-    .populate('employeeId', 'fullName employeeCode department position')
+    .populate('employeeId', 'employeeCode firstname lastname designation type joinDate avatarUrl status')
     .lean();
 
   if (!payroll) {
@@ -202,6 +202,9 @@ const getPayrollService = async (id) => {
       lastname: payroll.employeeId.lastname,
       avatarUrl: payroll.employeeId.avatarUrl,
       designation: payroll.employeeId.designation,
+      type: payroll.employeeId.type,
+      joinDate: payroll.employeeId.joinDate,
+      status: payroll.employeeId.status,
     },
   };
 
