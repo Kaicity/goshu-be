@@ -172,19 +172,37 @@ const getPayrollService = async (id) => {
     throw err;
   }
 
-  const payroll = await PayrollModel.findById(id);
+  const payroll = await PayrollModel.findById(id)
+    .populate('employeeId', 'fullName employeeCode department position')
+    .lean();
+
+  if (!payroll) {
+    const err = new Error('Payroll not found');
+    err.statusCode = 404;
+    throw err;
+  }
 
   const data = {
-    month: payroll.month,
-    year: payroll.year,
-    basicSalary: payroll.basicSalary,
-    allowance: payroll.allowance,
-    overtime: payroll.overtime,
-    deductions: payroll.deductions,
-    netSalary: payroll.netSalary,
-    status: payroll.status,
-    createdAt: payroll.createdAt,
-    updatedAt: payroll.updatedAt,
+    payroll: {
+      id: payroll.id,
+      payrollCode: payroll.payrollCode,
+      month: payroll.month,
+      year: payroll.year,
+      basicSalary: payroll.basicSalary,
+      allowance: payroll.allowance,
+      overtime: item.overtime,
+      deductions: payroll.deductions,
+      netSalary: payroll.netSalary,
+      status: payroll.status,
+    },
+    employee: {
+      id: payroll.employeeId.id,
+      employeeCode: payroll.employeeId.employeeCode,
+      firstname: payroll.employeeId.firstname,
+      lastname: payroll.employeeId.lastname,
+      avatarUrl: payroll.employeeId.avatarUrl,
+      designation: payroll.employeeId.designation,
+    },
   };
 
   return { data };
