@@ -190,7 +190,7 @@ const getPayrollService = async (id) => {
       year: payroll.year,
       basicSalary: payroll.basicSalary,
       allowance: payroll.allowance,
-      overtime: item.overtime,
+      overtime: payroll.overtime,
       deductions: payroll.deductions,
       netSalary: payroll.netSalary,
       status: payroll.status,
