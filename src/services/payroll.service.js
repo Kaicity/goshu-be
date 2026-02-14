@@ -44,7 +44,7 @@ const calculateDeductions = async (employeeId, month, year, basicSalary) => {
 };
 
 const createPayrollService = async (createData) => {
-  const { employeeId, month, year, basicSalary, allowance = 0, overtime = 0, deductions = 0 } = createData;
+  const { employeeId, month, year, basicSalary, allowance = 0, overtime = 0, deductions = 0, triggeredBy } = createData;
 
   const payrollCode = generateRandomCode('LNV-');
 
@@ -69,6 +69,7 @@ const createPayrollService = async (createData) => {
     overtime,
     deductions: subDeductions,
     netSalary,
+    triggeredBy,
   });
 
   await payroll.save();
@@ -286,7 +287,7 @@ const deletePayrollService = async (id) => {
  * - Dùng cho ngày 25 hàng tháng
  * - Chốt lương và xóa lịch điểm danh cũ để bắt đầu tháng mới
  */
-const createPayrollForAllEmployeesService = async (year, month) => {
+const createPayrollForAllEmployeesService = async (year, month, triggeredBy) => {
   // Check month, year hiện tại
   validateFutureSchedule(year, month);
 
@@ -323,6 +324,7 @@ const createPayrollForAllEmployeesService = async (year, month) => {
       year,
       basicSalary,
       allowance,
+      triggeredBy,
     };
 
     const payroll = await createPayrollService(createData);

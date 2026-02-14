@@ -41,8 +41,6 @@ app.use('/leaveRequests', verifyToken, leaveRequestRouter);
 app.use('/payrolls', payrollRouter);
 app.use('/payrolls-report', payrollReportRouter);
 app.use('/dashboard-report', dashboardReportRouter);
-
-// Route default when app running
 app.get('/', (req, res) => {
   res.send('Goshu Backend is running');
 });

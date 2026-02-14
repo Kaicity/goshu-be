@@ -1,5 +1,6 @@
-import cron from 'node-cron';
-import { createPayrollForAllEmployeesService } from '../services/payroll.service';
+const cron = require('node-cron');
+const { createPayrollForAllEmployeesService } = require('../services/payroll.service');
+const PayrollTrigger = require('../enums/payrollTrigger');
 
 // Lập lịch chạy Cron cho bảng lương lúc 23:59 và xét tháng điều kiện tháng 28 hoặc 31.
 cron.schedule('59 23 28-31 * *', async () => {
@@ -16,7 +17,7 @@ cron.schedule('59 23 28-31 * *', async () => {
   console.log(`Generating payroll for ${month}/${year}`);
 
   try {
-    await createPayrollForAllEmployeesService(year, month);
+    await createPayrollForAllEmployeesService(year, month, PayrollTrigger.CRON);
     console.log('Payroll created successfully');
   } catch (err) {
     console.error('Payroll cron failed:', err.message);

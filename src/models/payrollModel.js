@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const PayrollStatus = require('../enums/payrollStatus');
+const PayrollTrigger = require('../enums/payrollTrigger');
 
 const PayrollSchema = new mongoose.Schema({
   employeeId: { type: mongoose.Schema.Types.ObjectId, ref: 'employees', required: true },
@@ -17,6 +18,7 @@ const PayrollSchema = new mongoose.Schema({
     default: PayrollStatus.OPEN,
   },
   isDeleted: { type: Boolean },
+  triggeredBy: { type: String, enum: [PayrollTrigger.MANUAL, PayrollTrigger.CRON], default: PayrollTrigger.MANUAL },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
