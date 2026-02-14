@@ -16,6 +16,7 @@ const PayrollSchema = new mongoose.Schema({
     enum: [PayrollStatus.OPEN, PayrollStatus.CALCULATED, PayrollStatus.CLOSED],
     default: PayrollStatus.OPEN,
   },
+  isDeleted: { type: Boolean },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

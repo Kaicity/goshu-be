@@ -59,6 +59,9 @@ const EmployeeSchema = new mongoose.Schema({
   joinDate: {
     type: Date,
   },
+  resignedDate: {
+    type: Date,
+  },
   workingDate: {
     type: Date,
   },
@@ -86,6 +89,7 @@ const EmployeeSchema = new mongoose.Schema({
   },
   basicSalary: { type: Number, default: 0 },
   allowance: { type: Number, default: 0 },
+  isDeleted: { type: Boolean },
   createdAt: {
     type: Date,
     default: Date.now,

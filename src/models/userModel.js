@@ -27,6 +27,7 @@ const UserSchema = new mongoose.Schema({
   currentToken: {
     type: String,
   },
+  isDeleted: { type: Boolean },
   createdAt: {
     type: Date,
     default: Date.now,

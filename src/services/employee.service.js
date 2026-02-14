@@ -1,6 +1,7 @@
 const { isValidObjectId } = require('mongoose');
 const EmployeeModel = require('../models/employeeModel');
 const DepartmentModel = require('../models/departmentModel');
+const EmployeeStatus = require('../enums/employeeStatus');
 
 const getAllEmployeesService = async ({ page, limit, skip, search }, { department, type }) => {
   const query = {};
@@ -69,7 +70,7 @@ const updateEmployeeService = async (id, updateData) => {
   }
 
   //Update employee
-  const { username, departmentId } = updateData;
+  const { username, departmentId, status } = updateData;
 
   if (departmentId) {
     const department = await DepartmentModel.findById(departmentId);
@@ -91,6 +92,11 @@ const updateEmployeeService = async (id, updateData) => {
     }
 
     employee.username = username;
+  }
+
+  // Case terminated update resignedDate
+  if (status === EmployeeStatus.TERMINATED) {
+    employee.resignedDate = new Date();
   }
 
   // Mapping dữ liệu cũ sang dữ liệu mới
