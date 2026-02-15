@@ -7,6 +7,11 @@ const PayrollStatus = require('../enums/payrollStatus');
 const { validateFutureSchedule } = require('../utils/scheduleValidate');
 const EmployeeStatus = require('../enums/employeeStatus');
 const generateRandomCode = require('../utils/digitCodeRandom');
+const PerformanceModel = require('../models/performanceModel');
+const PerformanceStatus = require('../enums/performanceStatus');
+const PerformanceRank = require('../enums/performanceRank');
+const { BONUS_RANK_A, BONUS_RANK_B } = require('../constants/bonusRate');
+const getBonusRate = require('../utils/calculateBonusRate');
 
 /**
  * Tính deductions dựa trên Attendance
@@ -51,11 +56,21 @@ const createPayrollService = async (createData) => {
   // Check đi trễ bao nhiêu lần, số buổi vắng( trừ lương chứ gì)
   const autoDeductions = await calculateDeductions(employeeId, month, year, basicSalary);
 
-  // tổng deductions = lịch công + nhập tay các khoản trừ khác
+  // Tổng deductions = lịch công + nhập tay các khoản trừ khác
   const totalDeductions = autoDeductions + deductions;
 
   // Lương tổng = lương CB + phụ cấp + OT - (buổi vắng, nghỉ không phép, đi trễ, làm tổn hại vật chất công ty, đồng phục,...)
   const netSalary = Number((basicSalary + allowance + overtime - totalDeductions).toFixed(2));
+
+  // Lấy hiệu suất làm việc của nhân viên trong tháng/năm  (bonus hoa hồng)
+  const performance = await PerformanceModel.findOne({
+    employeeId,
+    period: `${year}-${String(month).padStart(2, '0')}`,
+    status: PerformanceStatus.APPROVED,
+  });
+
+  const bonusRate = getBonusRate(performance);
+  const totalSalary = netSalary + netSalary * bonusRate;
 
   const subDeductions = Number(totalDeductions);
 
@@ -68,7 +83,7 @@ const createPayrollService = async (createData) => {
     allowance,
     overtime,
     deductions: subDeductions,
-    netSalary,
+    netSalary: totalSalary,
     triggeredBy,
   });
 
