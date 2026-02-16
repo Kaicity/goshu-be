@@ -1,6 +1,9 @@
+const { ratingKpiPerformanceData } = require('../constants/mailerTheme');
 const PerformanceStatus = require('../enums/performanceStatus');
+const EmployeeModel = require('../models/employeeModel');
 const PerformanceModel = require('../models/performanceModel');
 const calculatePerformance = require('../utils/calculatePerformance');
+const handleSendEmailService = require('./mailer.service');
 
 const createPerformanceService = async (createData) => {
   const { employeeId, period, kpi, evaluatedBy, comment } = createData;
@@ -87,7 +90,15 @@ const approvePerformanceService = async (id) => {
   }
 
   performance.status = PerformanceStatus.APPROVED;
+
   await performance.save();
+
+  // Gửi mail đến user
+  const employee = await EmployeeModel.findById(performance.employeeId);
+  const fullname = `${employee.firstname}  ${employee.lastname}` ?? 'Chưa cập nhật';
+  const sendMailData = ratingKpiPerformanceData(employee.email, fullname, rank, totalScore);
+
+  await handleSendEmailService(sendMailData);
 };
 
 module.exports = { createPerformanceService, updatePerformanceService, approvePerformanceService };

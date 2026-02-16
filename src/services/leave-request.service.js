@@ -5,6 +5,9 @@ const LeaveRequestModel = require('../models/leaveRequestModel');
 const { updateAttendanceRangeDaysService } = require('./attendance.service');
 const AttendanceStatus = require('../enums/attendanceStatus');
 const { getIO } = require('../configs/socket');
+const { leaveApprovalEmailData } = require('../constants/mailerTheme');
+const mapLeaveRequestStatus = require('../utils/mapLeaveRequestStatus');
+const handleSendEmailService = require('./mailer.service');
 
 const createLeaveRequestService = async (leaveRequestData) => {
   const { employeeId, startDate, endDate } = leaveRequestData;
@@ -79,6 +82,20 @@ const createLeaveRequestService = async (leaveRequestData) => {
   });
 
   await leaveRequest.save();
+
+  // Gửi mail đến user
+  const fullname = `${employee.firstname}  ${employee.lastname}` ?? 'Chưa cập nhật';
+  const status = mapLeaveRequestStatus(leaveRequest.status);
+  const sendMailData = leaveApprovalEmailData(
+    employee.email,
+    fullname,
+    leaveRequest.startDate,
+    leaveRequest.endDate,
+    leaveRequest.reason,
+    status,
+  );
+
+  await handleSendEmailService(sendMailData);
 
   // Gửi socket
   const io = getIO();
