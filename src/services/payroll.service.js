@@ -9,44 +9,9 @@ const EmployeeStatus = require('../enums/employeeStatus');
 const generateRandomCode = require('../utils/digitCodeRandom');
 const PerformanceModel = require('../models/performanceModel');
 const PerformanceStatus = require('../enums/performanceStatus');
-const PerformanceRank = require('../enums/performanceRank');
-const { BONUS_RANK_A, BONUS_RANK_B } = require('../constants/bonusRate');
+
 const getBonusRate = require('../utils/calculateBonusRate');
-
-/**
- * Tính deductions dựa trên Attendance
- * Quy định:
- * - 3 lần đi trễ = 1 ngày lương
- * - 1 lần vắng = 1 ngày lương
- */
-const calculateDeductions = async (employeeId, month, year, basicSalary) => {
-  const firstDay = new Date(year, month - 1, 1);
-  firstDay.setHours(0, 0, 0, 0);
-  const lastDay = new Date(year, month, 0);
-  lastDay.setHours(23, 59, 59, 999);
-
-  const attendances = await AttendanceModel.find({
-    employeeId,
-    date: { $gte: firstDay, $lte: lastDay },
-  });
-
-  let lateCount = 0;
-  let absentCount = 0;
-
-  attendances.forEach((att) => {
-    if (att.status === AttendanceStatus.LATE) lateCount++;
-    if (att.status === AttendanceStatus.ABSENT) absentCount++;
-  });
-
-  const workingDays = process.env.WORKING_DAY || 22; //Ngày công không tính T7, CN
-  const dailySalary = basicSalary / workingDays;
-
-  const deductionLate = Math.floor(lateCount / 3) * dailySalary;
-
-  const deductionAbsent = absentCount * dailySalary;
-
-  return Number(deductionLate + deductionAbsent).toFixed(2);
-};
+const calculateDeductions = require('../utils/calculateDeduction');
 
 const createPayrollService = async (createData) => {
   const { employeeId, month, year, basicSalary, allowance = 0, overtime = 0, deductions = 0, triggeredBy } = createData;
@@ -70,7 +35,8 @@ const createPayrollService = async (createData) => {
   });
 
   const bonusRate = getBonusRate(performance);
-  const totalSalary = netSalary + netSalary * bonusRate;
+  const kpiBonus = netSalary * bonusRate;
+  const totalSalary = netSalary + kpiBonus;
 
   const subDeductions = Number(totalDeductions);
 
@@ -83,6 +49,7 @@ const createPayrollService = async (createData) => {
     allowance,
     overtime,
     deductions: subDeductions,
+    kpiBonus,
     netSalary: totalSalary,
     triggeredBy,
   });
