@@ -22,6 +22,7 @@ const seedDepartment = require('./src/seeds/seedDepartment');
 const payrollReportRouter = require('./src/routers/payroll-report.router');
 const dashboardReportRouter = require('./src/routers/dashboard-report.router');
 const performanceRouter = require('./src/routers/performance.router');
+const faceProfileRouter = require('./src/routers/faceProfile.router');
 
 const app = express();
 const server = http.createServer(app);
@@ -31,6 +32,7 @@ setupSocket(server);
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/auth', authRouter);
@@ -43,6 +45,7 @@ app.use('/payrolls', payrollRouter);
 app.use('/payrolls-report', payrollReportRouter);
 app.use('/dashboard-report', dashboardReportRouter);
 app.use('/performances', verifyToken, authorizeRole(UserRoles.HR), performanceRouter);
+app.use('/faces', verifyToken, authorizeRole(UserRoles.HR, UserRoles.EMPLOYEE), faceProfileRouter);
 app.get('/', (req, res) => {
   res.send('Goshu Backend is running');
 });
