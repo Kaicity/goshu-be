@@ -7,6 +7,7 @@ const {
   deleteAttendanceInMonthService,
   updateAttendanceRangeDaysService,
   generateAttendanceManualForMonthService,
+  checkInByFaceService,
 } = require('../services/attendance.service');
 
 const checkIn = asyncHandle(async (req, res) => {
@@ -67,9 +68,22 @@ const updateAttendance = asyncHandle(async (req, res) => {
   });
 });
 
+const checkInByFace = asyncHandle(async (req, res) => {
+  const { employeeId } = req.body;
+  const imagePath = req.file.path;
+
+  const result = await checkInByFaceService(employeeId, imagePath);
+
+  res.status(200).json({
+    message: 'Already checked by face in today',
+    ...result,
+  });
+});
+
 module.exports = {
   checkIn,
   checkOut,
+  checkInByFace,
   getAllAttendance,
   generateAttendanceManualForMonth,
   deleteAttendanceInMonth,

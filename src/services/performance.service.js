@@ -95,7 +95,7 @@ const approvePerformanceService = async (id) => {
 
   // Gửi mail đến user
   const employee = await EmployeeModel.findById(performance.employeeId);
-  const fullname = `${employee.firstname}  ${employee.lastname}` ?? 'Chưa cập nhật';
+  const fullname = `${employee.last}  ${employee.firstname}` ?? 'Chưa cập nhật';
   const sendMailData = ratingKpiPerformanceData(employee.email, fullname, rank, totalScore);
 
   await handleSendEmailService(sendMailData);

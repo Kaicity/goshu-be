@@ -84,7 +84,7 @@ const createLeaveRequestService = async (leaveRequestData) => {
   await leaveRequest.save();
 
   // Gửi mail đến user
-  const fullname = `${employee.firstname}  ${employee.lastname}` ?? 'Chưa cập nhật';
+  const fullname = `${employee.lastname}  ${employee.firstname}` ?? 'Chưa cập nhật';
   const status = mapLeaveRequestStatus(leaveRequest.status);
   const sendMailData = leaveApprovalEmailData(
     employee.email,
@@ -145,6 +145,26 @@ const approveLeaveRequestService = async (id, leaveRequestData) => {
   };
 
   await updateAttendanceRangeDaysService(updateData);
+
+  // Send mail đến user
+  const leaveRequest = await LeaveRequestModel.findById(id).populate('employeeId', 'email firstname lastname');
+
+  const employee = leaveRequest.employeeId;
+
+  const fullname = employee ? `${employee.lastname ?? ''} ${employee.firstname ?? ''}`.trim() : 'Chưa cập nhật';
+
+  const status = mapLeaveRequestStatus(leaveRequest.status);
+
+  const sendMailData = leaveApprovalEmailData(
+    employee.email,
+    fullname,
+    leaveRequest.startDate,
+    leaveRequest.endDate,
+    leaveRequest.reason,
+    status,
+  );
+
+  await handleSendEmailService(sendMailData);
 
   const data = {
     employeeId: leaveRequestUpdated.employeeId,

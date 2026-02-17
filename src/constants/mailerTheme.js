@@ -1,3 +1,5 @@
+const LeaveRequestStatus = require('../enums/leaveRequestStatus');
+
 const verificationData = (verificationCode, email) => {
   const data = {
     from: `Goshu HR (No-reply) <no-reply@goshu.vn>`,
@@ -149,6 +151,25 @@ const ratingKpiPerformanceData = (email, fullname, rank, totalScore) => {
 };
 
 const leaveApprovalEmailData = (email, fullname, startDate, endDate, reason, status) => {
+  let textColor = '#6b7280'; // mặc định xám
+  switch (status) {
+    case LeaveRequestStatus.APPROVED:
+      textColor = '#16a34a';
+      break;
+
+    case LeaveRequestStatus.PENDING:
+      textColor = '#f59e0b';
+      break;
+
+    case LeaveRequestStatus.REJECTED:
+      textColor = '#dc2626';
+      break;
+
+    default:
+      textColor = '#6b7280';
+      break;
+  }
+
   const data = {
     from: `Goshu HR (No-reply) <no-reply@goshu.vn>`,
     to: email,
@@ -202,7 +223,7 @@ const leaveApprovalEmailData = (email, fullname, startDate, endDate, reason, sta
                         </td>
                       </tr>
                     </table>
-                    <p style="margin:0 0 12px;">
+                    <p style="margin:0 0 12px;color:${textColor}">
                       Trạng thái đơn nghỉ phép hiện tại của anh/chị là: <strong>${status}</strong>.
                     </p>
                     <p style="margin:0 0 12px;">

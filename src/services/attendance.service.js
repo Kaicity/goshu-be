@@ -6,8 +6,14 @@ const { formatInTimeZone } = require('date-fns-tz');
 const { getIO } = require('../configs/socket');
 const EmployeeStatus = require('../enums/employeeStatus');
 const LeaveRequestStatus = require('../enums/leaveRequestStatus');
+const axios = require('axios');
+const FormData = require('form-data');
+const fs = require('fs');
+const { cosineSimilarity } = require('../utils/cosinSimilarity');
+const FaceProfileModel = require('../models/faceProfileModel');
 
 const timeZone = 'Asia/Ho_Chi_Minh';
+const BASE_URL = process.env.EXACT_FACE_ID_PORT;
 
 const checkInService = async (checkInData) => {
   const { employeeId } = checkInData;
@@ -347,9 +353,115 @@ const updateAttendanceRangeDaysService = async (updateData) => {
   }
 };
 
+const checkInByFaceService = async (employeeId, imagePath) => {
+  try {
+    // ----------------LOGIC EXACT FACE--------------------
+    const form = new FormData();
+    form.append('file', fs.createReadStream(imagePath));
+
+    const aiRes = await axios.post(`${BASE_URL}/api/v1/extract-face-ID`, form, {
+      headers: form.getHeaders(),
+    });
+
+    const inputEmbedding = aiRes.data.embedding;
+
+    // Tìm khuôn mặt với ID này
+    const profile = await FaceProfileModel.findOne({ employeeId });
+
+    if (!profile) {
+      const err = new Error('Bạn chưa đăng ký khuôn mặt');
+      err.statusCode = 400;
+      throw err;
+    }
+
+    // Hàm so sánh tọa độ vector khuôn mặt
+    const score = cosineSimilarity(inputEmbedding, profile.embedding);
+
+    if (score < 0.7) {
+      const err = new Error('Khuôn mặt không khớp');
+      err.statusCode = 401;
+      throw err;
+    }
+
+    // -------------LOGIC CHECKIN---------------------
+    const employee = await EmployeeModel.findById(employeeId);
+
+    //Ngày giờ thời gian hiện tại hôm nay
+    const today = formatInTimeZone(new Date(), timeZone, 'yyyy-MM-dd HH:mm:ss');
+
+    const startOfDay = new Date(today);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(today);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    let attendance = await AttendanceModel.findOne({
+      employeeId: employee._id.toString(),
+      date: { $gte: startOfDay, $lte: endOfDay },
+    });
+
+    if (!attendance) {
+      const err = new Error('Check-in chưa được khởi tạo hôm nay, thử lại sau!');
+      err.statusCode = 500;
+      throw err;
+    }
+
+    // Một ngày chỉ được phép check-in 1 lần
+    if (attendance.checkIn) {
+      const err = new Error('Bạn đã check-in hôm nay');
+      err.statusCode = 409;
+      throw err;
+    }
+
+    // Set trạng thái check-in trong ngày giờ làm việc bắt đầu luôn trước 8:00 PM sáng
+    const now = new Date(today);
+    const workStart = new Date(today);
+    workStart.setHours(8, 0, 0, 0);
+
+    let status = AttendanceStatus.PRESENT;
+    if (now > workStart) {
+      status = AttendanceStatus.LATE;
+    }
+
+    attendance.checkIn = now;
+    attendance.status = status;
+    attendance.updatedAt = new Date();
+
+    await attendance.save();
+
+    // Gửi socket checkin
+    const io = getIO();
+    io.emit('attendance:update', {
+      type: 'Check-in',
+      employeeCode: employee.employeeCode,
+      fullname: `${employee.lastname} ${employee.firstname}`,
+      checkIn: attendance.checkIn,
+      status: attendance.status,
+    });
+
+    const data = {
+      employee: {
+        employeeCode: employee.employeeCode,
+        fullname: `${employee.last} ${employee.firstname}`,
+      },
+      confidence: score,
+    };
+
+    return data;
+  } catch (err) {
+    if (axios.isAxiosError(err) && err.response?.status === 400) {
+      const e = new Error(err.response.data?.detail || 'Ảnh không hợp lệ');
+      e.statusCode = 400;
+      throw e;
+    }
+    throw err;
+  }
+};
+
 module.exports = {
   checkInService,
   checkOutService,
+  checkInByFaceService,
   getAllAttendancesService,
   generateAttendanceManualForMonthService,
   deleteAttendanceInMonthService,

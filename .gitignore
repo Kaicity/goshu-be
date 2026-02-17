@@ -106,3 +106,6 @@ public
 
 # Thumbs.db
 Thumbs.db
+
+# Uploads Multer
+uploads/

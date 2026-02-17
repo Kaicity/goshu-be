@@ -1,7 +1,7 @@
 const axios = require('axios');
 const FormData = require('form-data');
 const fs = require('fs');
-const FaceProfileModel = require('../models/FaceProfileModel');
+const FaceProfileModel = require('../models/faceProfileModel');
 const EmployeeModel = require('../models/employeeModel');
 
 const BASE_URL = process.env.EXACT_FACE_ID_PORT;
@@ -13,6 +13,13 @@ const registerFaceService = async (employeeId, imagePath) => {
   const employee = await EmployeeModel.findById(employeeId);
   if (!employee) {
     const err = new Error('Nhân viên không tồn tại');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const existedFace = await FaceProfileModel.findOne({ employeeId });
+  if (existedFace) {
+    const err = new Error('Nhân viên đã đăng ký khuôn mặt');
     err.statusCode = 400;
     throw err;
   }
