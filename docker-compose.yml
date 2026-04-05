@@ -4,7 +4,8 @@ version: '3.9'
 
 services:
   app:
-    build: .
+    # build: .
+    image: your-dockerhub-username/goshu-app:latest
     container_name: goshu-server
     ports:
       - '3001:3001'
