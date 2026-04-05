@@ -2,12 +2,6 @@ pipeline {
     agent any
 
     stages {
-        stage('Clone Code') {
-            steps {
-                git 'https://github.com/Kaicity/goshu-be'
-            }
-        }
-
         stage('Build & Run Docker') {
             steps {
                 sh '''
