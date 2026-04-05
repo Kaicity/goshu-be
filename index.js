@@ -58,6 +58,8 @@ connectDB();
 // seedAdminAccount();
 // seedDepartment();
 
+console.log('test ci/cd automation');
+
 app.use(errorMiddlewareHandle);
 
 server.listen(PORT, (err) => {
