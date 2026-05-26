@@ -30,7 +30,7 @@ const server = http.createServer(app);
 // Gắn socket vào server
 setupSocket(server);
 
-app.use(cors({ origin: process.env.CLIENT_PORT || 'http://localhost:3000', credentials: true }));
+app.use(cors({ origin: [process.env.CLIENT_URL, 'http://localhost:3000'], credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
